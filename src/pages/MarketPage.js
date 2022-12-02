@@ -37,11 +37,14 @@ import {
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
+import { AppWidgetSummary } from '../sections/@dashboard/app';
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
 import USERLIST from '../_mock/user';
 import { fShortenNumber } from '../utils/formatNumber';
+import liabilityIcon from '../images/liability.png';
+import walletyIcon from '../images/wallet.png';
 
 // ----------------------------------------------------------------------
 
@@ -72,7 +75,6 @@ const TABLE_HEAD = [
   { id: 'totalSupply', label: 'Total Supply', alignRight: false },
   { id: 'totalBorrow', label: 'Total Borrow', alignRight: false },
   { id: 'available', label: 'Available', alignRight: false },
-  { id: '' },
 ];
 
 // ----------------------------------------------------------------------
@@ -107,7 +109,7 @@ function applySortFilter(array, comparator, query) {
 }
 function Row(props) {
   const { id, token, type, rating, price, supplyApy, borrowApy, totalSupply, totalBorrow, available } = props;
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   return (
     <>
       <TableRow hover key={id} tabIndex={-1} role="checkbox">
@@ -178,7 +180,24 @@ function Row(props) {
             <Grid container spacing={3} justifyContent="center">
               <Grid item xs={12} sm={6} md={6}>
                 <Card sx={{ padding: '20px' }}>
-                  <CardHeader title="Deposit into Market" sx={{ padding: '0px' }} />
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{marginBottom: '20px'}}>
+                    <CardHeader title="Deposit into Market" sx={{ padding: '0px' }} subheader={`Balance: 0.05 ${token.symbol}`} />
+                    <Stack alignItems="center" justifyContent="centercenter">
+                      <span style={{
+                        fontSize: '16px',
+                        fontWeight: 700
+                      }}>
+                        {token.symbol} Deposited
+                      </span>
+                      <span style={{
+                        fontSize: '18px',
+                        color: '#2e7d32',
+                        fontWeight: 700
+                      }}>
+                        {fShortenNumber(1000)} {token.symbol}
+                      </span>
+                    </Stack>
+                  </Stack>
                   <StyledInput
                     // value={filterName}
                     // onChange={onFilterName}
@@ -186,16 +205,38 @@ function Row(props) {
                     label="Amount"
                     endAdornment={
                       <InputAdornment position="end">
-                        <Button variant="outlined">Max</Button>
+                        <Button variant="outlined" color='secondary'>
+                          Max
+                        </Button>
                       </InputAdornment>
                     }
                   />
-                  <Button variant="contained" fullWidth sx={{ marginTop: '10px' }} endIcon={<AddCircleIcon />}>Deposit</Button>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={3} sx={{marginTop: '20px'}}>
+                    <Button variant="outlined" fullWidth>Approve</Button>
+                    <Button variant="contained" fullWidth endIcon={<AddCircleIcon />}>Deposit {token.symbol}</Button>
+                  </Stack>
                 </Card>
               </Grid>
               <Grid item xs={12} sm={6} md={6}>
                 <Card sx={{ padding: '20px' }}>
-                  <CardHeader title="Borrow from Market" sx={{ padding: '0px' }} />
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ marginBottom: '20px' }}>
+                    <CardHeader title="Borrow from Market" sx={{ padding: '0px' }} subheader={`Available Amount: 0.05 ${token.symbol}`} />
+                    <Stack alignItems="center" justifyContent="centercenter">
+                      <span style={{
+                        fontSize: '16px',
+                        fontWeight: 700
+                      }}>
+                        {token.symbol} Borrowed
+                      </span>
+                      <span style={{
+                        fontSize: '18px',
+                        color: '#d32f2f',
+                        fontWeight: 700
+                      }}>
+                        {fShortenNumber(1000)} {token.symbol}
+                      </span>
+                    </Stack>
+                  </Stack>
                   <StyledInput
                     // value={filterName}
                     // onChange={onFilterName}
@@ -207,7 +248,7 @@ function Row(props) {
                       </InputAdornment>
                     }
                   />
-                  <Button variant="contained" fullWidth sx={{ marginTop: '10px' }} endIcon={<RemoveCircleIcon />}>Withdraw</Button>
+                  <Button variant="contained" fullWidth sx={{ marginTop: '20px' }} endIcon={<RemoveCircleIcon />}>Borrow From Market</Button>
                 </Card>
               </Grid>
             </Grid>
@@ -283,7 +324,16 @@ export default function MarketPage() {
             Markets
           </Typography>
         </Stack>
-
+        <div style={{ marginBottom: '30px' }}>
+          <Grid container spacing={3} justifyContent="center">
+            <Grid item xs={12} sm={6} md={3}>
+              <AppWidgetSummary title="Total Supplied Amount" prefix="$ " total={1710} color="success" icon={<img src={walletyIcon} width="40px" alt="Markets" />} />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <AppWidgetSummary title="Total Borrowed Amount" prefix="$ " total={1510} color="error" icon={<img src={liabilityIcon} width="40px" alt="Markets" />} />
+            </Grid>
+          </Grid>
+        </div>
         <Card>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
