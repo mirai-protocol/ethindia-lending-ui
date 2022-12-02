@@ -15,6 +15,7 @@ query markets {
       name
       lastPriceUSD
       symbol
+      decimals
     }
     outputToken {
       id

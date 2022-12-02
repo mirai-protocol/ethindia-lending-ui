@@ -2,12 +2,12 @@
 // import { ChainId } from "@cryption-network/polydex-sdk";
 import random from "lodash/random";
 
-declare global {
-  interface Window {
-    web3: any;
-    ethereum: any;
-  }
-}
+// declare global {
+//   interface Window {
+//     web3: any;
+//     ethereum: any;
+//   }
+// }
 // Array of available nodes to connect to
 export const nodes = {
   "80001": [process.env.REACT_APP_TESTNET_NETWORK_URL],
