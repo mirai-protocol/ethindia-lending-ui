@@ -125,6 +125,7 @@ function Row(props) {
   const [open, setOpen] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
   const [borrowLoading, setBorrowLoading] = useState(false);
+  const [repayLoading, setRepayLoading] = useState(false);
   const [depositLoading, setDepositLoading] = useState(false);
   const [amounts, setamounts] = useState({
     depositAmount: '0',
@@ -250,13 +251,30 @@ function Row(props) {
   }
   const handleBorrow = async () => {
     try {
-      setBorrowLoading(true)
+      setRepayLoading(true)
       const eularInstance = getEularInstance()
       const dToken = await eularInstance.dTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
         .toJSON()
       const tx = await dToken.borrow('0', approvalAmount)
+      await tx.wait();
+      updateUserStats()
+      setRepayLoading(false)
+    } catch (error) {
+      setRepayLoading(false)
+      console.error(error)
+    }
+  }
+  const handleRepay = async () => {
+    try {
+      setBorrowLoading(true)
+      const eularInstance = getEularInstance()
+      const dToken = await eularInstance.dTokenOf(inputToken.id);
+      const approvalAmount = new BigNumber(amounts.withdrawAmount)
+        .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
+        .toJSON()
+      const tx = await dToken.repay('0', approvalAmount)
       await tx.wait();
       updateUserStats()
       setBorrowLoading(false)
@@ -430,7 +448,15 @@ function Row(props) {
                       }
                     />
                     <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={3} sx={{ marginTop: '20px' }}>
-                      <Button variant="outlined" fullWidth endIcon={<RemoveCircleIcon />}>Repay</Button>
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        onClick={handleRepay}
+                        disabled={repayLoading}
+                        endIcon={<RemoveCircleIcon />}
+                      >
+                        {repayLoading ? 'Processing...' : 'Repay'}
+                      </Button>
                       <Button
                         variant="contained"
                         onClick={handleBorrow}
