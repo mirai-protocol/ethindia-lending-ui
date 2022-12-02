@@ -251,7 +251,8 @@ function Row(props) {
   }
   const handleBorrow = async () => {
     try {
-      setRepayLoading(true)
+      
+      setBorrowLoading(true)
       const eularInstance = getEularInstance()
       const dToken = await eularInstance.dTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
@@ -260,15 +261,15 @@ function Row(props) {
       const tx = await dToken.borrow('0', approvalAmount)
       await tx.wait();
       updateUserStats()
-      setRepayLoading(false)
+      setBorrowLoading(false)
     } catch (error) {
-      setRepayLoading(false)
+      setBorrowLoading(false)
       console.error(error)
     }
   }
   const handleRepay = async () => {
     try {
-      setBorrowLoading(true)
+      setRepayLoading(true)
       const eularInstance = getEularInstance()
       const dToken = await eularInstance.dTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
@@ -277,9 +278,9 @@ function Row(props) {
       const tx = await dToken.repay('0', approvalAmount)
       await tx.wait();
       updateUserStats()
-      setBorrowLoading(false)
+      setRepayLoading(false)
     } catch (error) {
-      setBorrowLoading(false)
+      setRepayLoading(false)
       console.error(error)
     }
   }
