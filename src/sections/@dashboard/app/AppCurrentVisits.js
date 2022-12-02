@@ -43,7 +43,7 @@ export default function AppCurrentVisits({ title, subheader, chartColors, chartD
 
   const chartLabels = chartData.map((i) => i.label);
 
-  const chartSeries = chartData.map((i) => i.value);
+  const chartSeries = chartData.map((i) => parseFloat(i.value));
 
   const chartOptions = useChart({
     colors: chartColors,

@@ -29,6 +29,25 @@ export const NATIVE_TOKENS = {
     decimals: "18",
   },
 };
+export const TOKEN_IMAGES = {
+
+  CNT: "https://cryption-network-local.infura-ipfs.io/ipfs/QmceihNozdFNThRJiP2X93X2LXmSb5XWzsTaNsVBA7GwTZ",
+  USDC: "https://cryption-network-local.infura-ipfs.io/ipfs/QmV17MDKrb3aCQa2a2SzBZaCeAeAFrpFmqCjn351cWApGS",
+  USDT: "https://cryption-network-local.infura-ipfs.io/ipfs/QmTXHnF2hcQyqo7DGGRDHMizUMCNRo1CNBJYwbXUKpQWj2",
+  DAI: "https://cryption-network-local.infura-ipfs.io/ipfs/QmVChZZtAijsiTnMRFb6ziQLnRocXnBU2Lb3F67K2ZPHho",
+  MATIC:
+    "https://cryption-network-local.infura-ipfs.io/ipfs/QmQnnPC9FKVdC2qnvHdDE45cz6q8grpeBLwBWNETVwzi5Q",
+  WMATIC:
+    "https://cryption-network-local.infura-ipfs.io/ipfs/QmQnnPC9FKVdC2qnvHdDE45cz6q8grpeBLwBWNETVwzi5Q",
+  BNB: "https://cryption-network-local.infura-ipfs.io/ipfs/QmRNM1Ty5Gtk7s2UpzKZ8phYJd7TVWE4EFjYgPdRHxiPVn",
+  DEV: "https://s2.coinmarketcap.com/static/img/coins/64x64/6836.png",
+  ETH: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
+  WETH: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
+  WBTC: "https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1548822744",
+  UNI: "https://assets.coingecko.com/coins/images/12504/large/uniswap-uni.png?1600306604",
+  FTX: "https://assets.coingecko.com/coins/images/9026/large/F.png?1609051564",
+  LINK: "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png?1547034700"
+}
 export const injected = new InjectedConnector({
   supportedChainIds: [137, 80001],
 });
