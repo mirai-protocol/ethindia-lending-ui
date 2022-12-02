@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
 import { useLocation } from 'react-router-dom';
 // @mui
 import { styled, alpha } from '@mui/material/styles';
@@ -14,7 +16,8 @@ import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 //
 import navConfig from './config';
-
+import { getMarketsData } from '../../../utils/getMarketsData';
+import { globalCreators } from '../../../state/markets/index';
 // ----------------------------------------------------------------------
 
 const NAV_WIDTH = 280;
@@ -32,19 +35,39 @@ const StyledAccount = styled('div')(({ theme }) => ({
 Nav.propTypes = {
   openNav: PropTypes.bool,
   onCloseNav: PropTypes.func,
+  getMarketsLoad: PropTypes.func,
+  getMarketsSuccess: PropTypes.func,
+  getMarketsError: PropTypes.func,
+  setMarketsStats: PropTypes.func
 };
 
-export default function Nav({ openNav, onCloseNav }) {
+function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarketsError, setMarketsStats }) {
   const { pathname } = useLocation();
-
   const isDesktop = useResponsive('up', 'lg');
-
   useEffect(() => {
     if (openNav) {
       onCloseNav();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+  useEffect(() => {
+    const getMarkets = async () => {
+      getMarketsLoad();
+      const markets = await getMarketsData()
+      if (markets.success && markets.data.markets) {
+        getMarketsSuccess(markets.data.markets)
+        setMarketsStats({
+          totalValueLocked: markets.data.totalSupply.toString(),
+          totalValueBorrowed: markets.data.totalBorrowed.toString()
+        })
+      }
+      if (markets.error) {
+        getMarketsError()
+      }
+    }
+    getMarkets()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderContent = (
     <Scrollbar
@@ -120,3 +143,26 @@ export default function Nav({ openNav, onCloseNav }) {
     </Box>
   );
 }
+
+const mapStateToProps = state => ({
+  markets: state.markets,
+});
+
+export function mapDispatchToProps(dispatch) {
+  const { getMarketsLoad, getMarketsSuccess, getMarketsError, setMarketsStats } = globalCreators;
+  return {
+    getMarketsLoad: () => dispatch(getMarketsLoad()),
+    getMarketsError: () => dispatch(getMarketsError()),
+    getMarketsSuccess: data => dispatch(getMarketsSuccess(data)),
+    setMarketsStats: data => dispatch(setMarketsStats(data)),
+  };
+}
+
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+export default compose(
+  withConnect,
+)(Nav);

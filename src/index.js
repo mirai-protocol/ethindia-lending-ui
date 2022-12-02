@@ -1,26 +1,26 @@
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
+import { Provider } from "react-redux";
 import { HelmetProvider } from 'react-helmet-async';
-import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
+import Providers from "./Provider";
 //
 import App from './App';
+import store from "./configureStore";
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
 
 // ----------------------------------------------------------------------
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const Web3ProviderNetwork = createWeb3ReactRoot("NETWORK");
-export const getLibrary = (provider) => provider;
 root.render(
   <HelmetProvider>
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <Web3ProviderNetwork getLibrary={getLibrary}>
+    <Providers>
+      <Provider store={store()}>
         <BrowserRouter>
           <App />
         </BrowserRouter>
-      </Web3ProviderNetwork>
-    </Web3ReactProvider>
+      </Provider>
+    </Providers>
   </HelmetProvider>
 );
 

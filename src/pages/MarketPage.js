@@ -1,13 +1,15 @@
 /* eslint-disable react/prop-types */
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
 import { styled, alpha } from '@mui/material/styles';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 // import { sentenceCase } from 'change-case';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // @mui
 import {
   Card,
@@ -28,7 +30,7 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  Rating,
+  // Rating,
   OutlinedInput,
   InputAdornment,
   Button
@@ -41,10 +43,10 @@ import { AppWidgetSummary } from '../sections/@dashboard/app';
 // sections
 import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
-import USERLIST from '../_mock/user';
 import { fShortenNumber } from '../utils/formatNumber';
 import liabilityIcon from '../images/liability.png';
 import walletyIcon from '../images/wallet.png';
+import { globalCreators } from '../state/markets/index';
 
 // ----------------------------------------------------------------------
 
@@ -66,14 +68,14 @@ const StyledInput = styled(OutlinedInput)(({ theme }) => ({
   },
 }));
 const TABLE_HEAD = [
-  { id: 'token', label: 'Market Name', alignRight: false },
-  { id: 'type', label: 'Type', alignRight: false },
-  { id: 'rating', label: 'Rating', alignRight: false },
-  { id: 'price', label: 'Price', alignRight: false },
-  { id: 'supplyApy', label: 'Supply APY', alignRight: false },
-  { id: 'borrowApy', label: 'Borrow APY', alignRight: false },
-  { id: 'totalSupply', label: 'Total Supply', alignRight: false },
-  { id: 'totalBorrow', label: 'Total Borrow', alignRight: false },
+  { id: 'inputToken', label: 'Market Name', alignRight: false },
+  // { id: 'type', label: 'Type', alignRight: false },
+  // { id: 'rating', label: 'Rating', alignRight: false },
+  { id: 'inputTokenPriceUSD', label: 'Price', alignRight: false },
+  { id: 'supplierApy', label: 'Supply APY', alignRight: false },
+  { id: 'borrowerApy', label: 'Borrow APY', alignRight: false },
+  { id: 'totalDepositBalanceUSD', label: 'Total Supply', alignRight: false },
+  { id: 'totalBorrowBalanceUSD', label: 'Total Borrow', alignRight: false },
   { id: 'available', label: 'Available', alignRight: false },
 ];
 
@@ -108,7 +110,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 function Row(props) {
-  const { id, token, type, rating, price, supplyApy, borrowApy, totalSupply, totalBorrow, available } = props;
+  const { id, inputToken, supplierApy, borrowerApy, totalBorrowBalanceUSD, totalDepositBalanceUSD, inputTokenPriceUSD, available } = props;
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -122,55 +124,55 @@ function Row(props) {
 
         <TableCell component="th" scope="row" padding="none">
           <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={token.symbol} src={token.imgrc} />
+            <Avatar alt={inputToken.symbol} src={inputToken.logoImg} />
             <Stack>
               <Typography variant="subtitle2" noWrap>
-                {token.symbol}
+                {inputToken.symbol}
               </Typography>
               <Typography variant="body" noWrap>
-                {token.name}
+                {inputToken.name}
               </Typography>
             </Stack>
           </Stack>
         </TableCell>
 
-        <TableCell align="left">
+        {/* <TableCell align="left">
           <span style={{ fontWeight: '700', fontSize: '16px' }}>{type}</span>
-        </TableCell>
+        </TableCell> */}
 
-        <TableCell align="left">
+        {/* <TableCell align="left">
           <Rating name="customized-10" readOnly value={rating} max={3} />
-        </TableCell>
+        </TableCell> */}
 
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px' }}>
-            ${price}
+            ${parseFloat(inputTokenPriceUSD).toFixed(2)}
           </span>
         </TableCell>
 
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px', color: '#43a047' }}>
-            {supplyApy}%
+            {parseFloat(supplierApy).toFixed(3)}%
           </span>
         </TableCell>
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px', color: '#ffa000' }}>
-            {borrowApy}%
+            {parseFloat(borrowerApy).toFixed(3)}%
           </span>
         </TableCell>
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px' }}>
-            {fShortenNumber(totalSupply)}
+            {fShortenNumber(totalDepositBalanceUSD)}
           </span>
         </TableCell>
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px', color: '#ffa000' }}>
-            {fShortenNumber(totalBorrow)}
+            {fShortenNumber(totalBorrowBalanceUSD)}
           </span>
         </TableCell>
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px', color: '#43a047' }}>
-            {fShortenNumber(available)}
+            {available > 0 ? fShortenNumber(available) : 0}
           </span>
         </TableCell>
       </TableRow>
@@ -180,21 +182,21 @@ function Row(props) {
             <Grid container spacing={3} justifyContent="center">
               <Grid item xs={12} sm={6} md={6}>
                 <Card sx={{ padding: '20px' }}>
-                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{marginBottom: '20px'}}>
-                    <CardHeader title="Deposit into Market" sx={{ padding: '0px' }} subheader={`Balance: 0.05 ${token.symbol}`} />
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ marginBottom: '20px' }}>
+                    <CardHeader title="Deposit into Market" sx={{ padding: '0px' }} subheader={`Balance: 0.05 ${inputToken.symbol}`} />
                     <Stack alignItems="center" justifyContent="centercenter">
                       <span style={{
                         fontSize: '16px',
                         fontWeight: 700
                       }}>
-                        {token.symbol} Deposited
+                        {inputToken.symbol} Deposited
                       </span>
                       <span style={{
                         fontSize: '18px',
                         color: '#2e7d32',
                         fontWeight: 700
                       }}>
-                        {fShortenNumber(1000)} {token.symbol}
+                        {fShortenNumber(1000)} {inputToken.symbol}
                       </span>
                     </Stack>
                   </Stack>
@@ -211,29 +213,29 @@ function Row(props) {
                       </InputAdornment>
                     }
                   />
-                  <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={3} sx={{marginTop: '20px'}}>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={3} sx={{ marginTop: '20px' }}>
                     <Button variant="outlined" fullWidth>Approve</Button>
-                    <Button variant="contained" fullWidth endIcon={<AddCircleIcon />}>Deposit {token.symbol}</Button>
+                    <Button variant="contained" fullWidth endIcon={<AddCircleIcon />}>Deposit {inputToken.symbol}</Button>
                   </Stack>
                 </Card>
               </Grid>
               <Grid item xs={12} sm={6} md={6}>
                 <Card sx={{ padding: '20px' }}>
                   <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ marginBottom: '20px' }}>
-                    <CardHeader title="Borrow from Market" sx={{ padding: '0px' }} subheader={`Available Amount: 0.05 ${token.symbol}`} />
+                    <CardHeader title="Borrow from Market" sx={{ padding: '0px' }} subheader={`Available Amount: 0.05 ${inputToken.symbol}`} />
                     <Stack alignItems="center" justifyContent="centercenter">
                       <span style={{
                         fontSize: '16px',
                         fontWeight: 700
                       }}>
-                        {token.symbol} Borrowed
+                        {inputToken.symbol} Borrowed
                       </span>
                       <span style={{
                         fontSize: '18px',
                         color: '#d32f2f',
                         fontWeight: 700
                       }}>
-                        {fShortenNumber(1000)} {token.symbol}
+                        {fShortenNumber(1000)} {inputToken.symbol}
                       </span>
                     </Stack>
                   </Stack>
@@ -258,9 +260,9 @@ function Row(props) {
     </>
   )
 }
-export default function MarketPage() {
+function MarketPage({ markets }) {
   const [open, setOpen] = useState(null);
-
+  const [marketsData, setMarkestData] = useState([]);
   const [page, setPage] = useState(0);
 
   const [order, setOrder] = useState('asc');
@@ -285,7 +287,7 @@ export default function MarketPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = marketsData.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -306,11 +308,14 @@ export default function MarketPage() {
     setFilterName(event.target.value);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - marketsData.length) : 0;
 
-  const filteredUsers = applySortFilter(USERLIST, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(marketsData, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredUsers.length && !!filterName;
+  useEffect(() => {
+    setMarkestData(markets.markets)
+  }, [markets.getMarketsSuccess, markets.markets])
 
   return (
     <>
@@ -344,7 +349,7 @@ export default function MarketPage() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
+                  rowCount={marketsData.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -390,7 +395,7 @@ export default function MarketPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            count={marketsData.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -430,3 +435,24 @@ export default function MarketPage() {
     </>
   );
 }
+const mapStateToProps = state => ({
+  markets: state.markets,
+});
+
+export function mapDispatchToProps(dispatch) {
+  const { getMarketsLoad, getMarketsSuccess, getMarketsError } = globalCreators;
+  return {
+    getMarketsLoad: () => dispatch(getMarketsLoad()),
+    getMarketsError: () => dispatch(getMarketsError()),
+    getMarketsSuccess: data => dispatch(getMarketsSuccess(data)),
+  };
+}
+
+const withConnect = connect(
+  mapStateToProps,
+  mapDispatchToProps,
+);
+
+export default compose(
+  withConnect,
+)(MarketPage);
