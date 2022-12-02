@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect } from 'react';
 // import { connectorLocalStorageKey } from "cryption-uikit-v2";
 // import { useLocation } from "react-router-dom";
-import useAuth from "./useAuth";
+import useAuth from './useAuth';
 
 const useEagerConnect = () => {
   const { login } = useAuth();
@@ -16,7 +16,7 @@ const useEagerConnect = () => {
       login(connectorId);
     } else {
       // @ts-ignore
-      login("injected");
+      login('injected');
     }
   }, [login, location]);
 };

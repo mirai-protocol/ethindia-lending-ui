@@ -1,5 +1,5 @@
-import { InjectedConnector } from "@web3-react/injected-connector";
-import MetamaskIcon from "../images/metamask.png";
+import { InjectedConnector } from '@web3-react/injected-connector';
+import MetamaskIcon from '../images/metamask.png';
 
 export const setMetamaskGasPrice = {
   maxPriorityFeePerGas: null,
@@ -7,24 +7,21 @@ export const setMetamaskGasPrice = {
 };
 export const SUPPORTED_NETWORK_IDS = [137, 80001, 5, 1];
 export const TOKEN_IMAGES = {
-
-  CNT: "https://cryption-network-local.infura-ipfs.io/ipfs/QmceihNozdFNThRJiP2X93X2LXmSb5XWzsTaNsVBA7GwTZ",
-  USDC: "https://cryption-network-local.infura-ipfs.io/ipfs/QmV17MDKrb3aCQa2a2SzBZaCeAeAFrpFmqCjn351cWApGS",
-  USDT: "https://cryption-network-local.infura-ipfs.io/ipfs/QmTXHnF2hcQyqo7DGGRDHMizUMCNRo1CNBJYwbXUKpQWj2",
-  DAI: "https://cryption-network-local.infura-ipfs.io/ipfs/QmVChZZtAijsiTnMRFb6ziQLnRocXnBU2Lb3F67K2ZPHho",
-  MATIC:
-    "https://cryption-network-local.infura-ipfs.io/ipfs/QmQnnPC9FKVdC2qnvHdDE45cz6q8grpeBLwBWNETVwzi5Q",
-  WMATIC:
-    "https://cryption-network-local.infura-ipfs.io/ipfs/QmQnnPC9FKVdC2qnvHdDE45cz6q8grpeBLwBWNETVwzi5Q",
-  BNB: "https://cryption-network-local.infura-ipfs.io/ipfs/QmRNM1Ty5Gtk7s2UpzKZ8phYJd7TVWE4EFjYgPdRHxiPVn",
-  DEV: "https://s2.coinmarketcap.com/static/img/coins/64x64/6836.png",
-  ETH: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
-  WETH: "https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png",
-  WBTC: "https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1548822744",
-  UNI: "https://assets.coingecko.com/coins/images/12504/large/uniswap-uni.png?1600306604",
-  FTX: "https://assets.coingecko.com/coins/images/9026/large/F.png?1609051564",
-  LINK: "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png?1547034700"
-}
+  CNT: 'https://cryption-network-local.infura-ipfs.io/ipfs/QmceihNozdFNThRJiP2X93X2LXmSb5XWzsTaNsVBA7GwTZ',
+  USDC: 'https://cryption-network-local.infura-ipfs.io/ipfs/QmV17MDKrb3aCQa2a2SzBZaCeAeAFrpFmqCjn351cWApGS',
+  USDT: 'https://cryption-network-local.infura-ipfs.io/ipfs/QmTXHnF2hcQyqo7DGGRDHMizUMCNRo1CNBJYwbXUKpQWj2',
+  DAI: 'https://cryption-network-local.infura-ipfs.io/ipfs/QmVChZZtAijsiTnMRFb6ziQLnRocXnBU2Lb3F67K2ZPHho',
+  MATIC: 'https://cryption-network-local.infura-ipfs.io/ipfs/QmQnnPC9FKVdC2qnvHdDE45cz6q8grpeBLwBWNETVwzi5Q',
+  WMATIC: 'https://cryption-network-local.infura-ipfs.io/ipfs/QmQnnPC9FKVdC2qnvHdDE45cz6q8grpeBLwBWNETVwzi5Q',
+  BNB: 'https://cryption-network-local.infura-ipfs.io/ipfs/QmRNM1Ty5Gtk7s2UpzKZ8phYJd7TVWE4EFjYgPdRHxiPVn',
+  DEV: 'https://s2.coinmarketcap.com/static/img/coins/64x64/6836.png',
+  ETH: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  WETH: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  WBTC: 'https://assets.coingecko.com/coins/images/7598/large/wrapped_bitcoin_wbtc.png?1548822744',
+  UNI: 'https://assets.coingecko.com/coins/images/12504/large/uniswap-uni.png?1600306604',
+  FTX: 'https://assets.coingecko.com/coins/images/9026/large/F.png?1609051564',
+  LINK: 'https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png?1547034700',
+};
 export const injected = new InjectedConnector({
   supportedChainIds: [137, 80001, 5, 1],
 });
@@ -33,9 +30,9 @@ export const SUPPORTED_WALLETS = {
     connector: injected,
     name: 'METAMASK',
     iconName: MetamaskIcon,
-    description: "Easy-to-use browser extension.",
+    description: 'Easy-to-use browser extension.',
     href: null,
-    color: "#E8831D",
+    color: '#E8831D',
   },
   // BLOCKWALLET: {
   //   connector: injected,
@@ -100,15 +97,15 @@ export const SUPPORTED_WALLETS = {
 export const MIN_REWARDS = 2000;
 export const MIN_REWARDS_PER_MONTH = 1000;
 export const QUICKSWAP_TOKE_URL =
-  "https://unpkg.com/quickswap-default-token-list@latest/build/quickswap-default.tokenlist.json";
+  'https://unpkg.com/quickswap-default-token-list@latest/build/quickswap-default.tokenlist.json';
 export const NETWORKS = {
   137: {
-    name: 'Polygon Mainnet'
+    name: 'Polygon Mainnet',
   },
   80001: {
-    name: 'Polygon Testnet'
-  }
-}
+    name: 'Polygon Testnet',
+  },
+};
 export const SUPPORTED_NETWORKS = [
   // {
   //   title: "Polygon Mainnet",
@@ -124,39 +121,38 @@ export const SUPPORTED_NETWORKS = [
   //   rpcUrl: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
   // },
   {
-    title: "Mumbai Testnet",
-    name: "moonbase-alphanet",
-    chainId: "80001",
-    imgSrc: "https://polygonscan.com/images/svg/brands/polygon.svg",
-    rpcUrl:
-      "https://polygon-mumbai.g.alchemy.com/v2/FTbhFEHlJbgxwf0U0DQtTDqbANNhfuc1",
+    title: 'Mumbai Testnet',
+    name: 'moonbase-alphanet',
+    chainId: '80001',
+    imgSrc: 'https://polygonscan.com/images/svg/brands/polygon.svg',
+    rpcUrl: 'https://polygon-mumbai.g.alchemy.com/v2/FTbhFEHlJbgxwf0U0DQtTDqbANNhfuc1',
   },
   {
-    title: "Goerli Test Network",
-    chainId: "5",
-    imgSrc: "https://etherscan.io/images/brandassets/etherscan-logo-circle.jpg",
-    rpcUrl: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+    title: 'Goerli Test Network',
+    chainId: '5',
+    imgSrc: 'https://etherscan.io/images/brandassets/etherscan-logo-circle.jpg',
+    rpcUrl: 'https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
   },
-]
+];
 export const NATIVE_TOKENS = {
   80001: {
-    name: "MATIC",
-    symbol: "MATIC",
-    decimals: "18",
+    name: 'MATIC',
+    symbol: 'MATIC',
+    decimals: '18',
   },
   137: {
-    name: "MATIC",
-    symbol: "MATIC",
-    decimals: "18",
+    name: 'MATIC',
+    symbol: 'MATIC',
+    decimals: '18',
   },
   1: {
-    name: "ETH",
-    symbol: "ETH",
-    decimals: "18",
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: '18',
   },
   5: {
-    name: "ETH",
-    symbol: "ETH",
-    decimals: "18",
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: '18',
   },
 };

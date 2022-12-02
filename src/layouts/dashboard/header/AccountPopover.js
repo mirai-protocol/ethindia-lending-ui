@@ -6,7 +6,7 @@ import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, Button, IconButton, Popover } from '@mui/material';
 // mocks_
 import accountData from '../../../_mock/account';
-import { SUPPORTED_WALLETS, NETWORKS } from '../../../config'
+import { SUPPORTED_WALLETS, NETWORKS } from '../../../config';
 
 // ----------------------------------------------------------------------
 
@@ -29,11 +29,7 @@ const MENU_OPTIONS = [
 
 export default function AccountPopover() {
   const [open, setOpen] = useState(null);
-  const {
-    account,
-    chainId,
-    activate,
-  } = useWeb3React();
+  const { account, chainId, activate } = useWeb3React();
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
@@ -44,7 +40,7 @@ export default function AccountPopover() {
   const connectWallet = async (connector) => {
     Object.keys(SUPPORTED_WALLETS).map((key) => {
       if (connector === SUPPORTED_WALLETS[key].connector) {
-        return (SUPPORTED_WALLETS[key].name);
+        return SUPPORTED_WALLETS[key].name;
       }
       return true;
     });
@@ -58,7 +54,7 @@ export default function AccountPopover() {
   };
   return (
     <>
-      {account ?
+      {account ? (
         <IconButton
           onClick={handleOpen}
           sx={{
@@ -78,7 +74,7 @@ export default function AccountPopover() {
         >
           <Avatar src={accountData.photoURL} alt="photoURL" />
         </IconButton>
-        :
+      ) : (
         <Button
           onClick={() => connectWallet(SUPPORTED_WALLETS.METAMASK.connector)}
           variant="contained"
@@ -86,7 +82,7 @@ export default function AccountPopover() {
         >
           Connect Wallet
         </Button>
-      }
+      )}
 
       <Popover
         open={Boolean(open)}
@@ -107,7 +103,7 @@ export default function AccountPopover() {
           },
         }}
       >
-        {account && chainId &&
+        {account && chainId && (
           <Box sx={{ my: 1.5, px: 2.5 }}>
             <Typography variant="subtitle2" noWrap>
               {`${account.slice(0, 4)}....${account.slice(account.length - 4)}`}
@@ -116,7 +112,7 @@ export default function AccountPopover() {
               {NETWORKS[chainId] && NETWORKS[chainId].name ? NETWORKS[chainId].name : 'Wrong Network'}
             </Typography>
           </Box>
-        }
+        )}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 

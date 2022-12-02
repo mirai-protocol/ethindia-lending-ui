@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { Box, Divider, Typography, Stack, MenuItem, Button, Popover } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -7,9 +7,7 @@ import { SUPPORTED_NETWORKS, NATIVE_TOKENS } from '../../../config';
 
 export default function NetworkToggle() {
   const [open, setOpen] = useState(null);
-  const {
-    chainId,
-  } = useWeb3React();
+  const { chainId } = useWeb3React();
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
@@ -20,18 +18,16 @@ export default function NetworkToggle() {
   const changeNetwork = async (networkData) => {
     try {
       await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
+        method: 'wallet_switchEthereumChain',
         // params: [{ chainId: '0x1' }],
-        params: [
-          { chainId: `0x${parseFloat(networkData.chainId).toString(16)}` },
-        ],
+        params: [{ chainId: `0x${parseFloat(networkData.chainId).toString(16)}` }],
       });
     } catch (switchError) {
       // This error code indicates that the chain has not been added to MetaMask.
       if (switchError) {
         try {
           await window.ethereum.request({
-            method: "wallet_addEthereumChain",
+            method: 'wallet_addEthereumChain',
             params: [
               {
                 chainId: `0x${parseFloat(networkData.chainId).toString(16)}`,
@@ -40,9 +36,7 @@ export default function NetworkToggle() {
                 nativeCurrency: {
                   name: NATIVE_TOKENS[networkData.chainId].name,
                   symbol: NATIVE_TOKENS[networkData.chainId].symbol,
-                  decimals: parseInt(
-                    NATIVE_TOKENS[networkData.chainId].decimals, 10
-                  ),
+                  decimals: parseInt(NATIVE_TOKENS[networkData.chainId].decimals, 10),
                 },
               },
             ],
@@ -54,26 +48,28 @@ export default function NetworkToggle() {
       }
       // handle other "switch" errors
     }
-    handleClose()
+    handleClose();
   };
   let network = null;
   if (chainId) {
-    network = SUPPORTED_NETWORKS.find(network => network.chainId === chainId.toString());
+    network = SUPPORTED_NETWORKS.find((network) => network.chainId === chainId.toString());
   }
   return (
     <div>
-      {network ? <Button
-        variant='outlined'
-        onClick={handleOpen}
-        sx={{ marginRight: '20px' }}
-        endIcon={<KeyboardArrowDownIcon />}
-        startIcon={<CheckCircleIcon sx={{ color: '#4caf50' }} />}
-      >
-        {network.title}
-      </Button> :
+      {network ? (
         <Button
-          variant='outlined'
-          color='error'
+          variant="outlined"
+          onClick={handleOpen}
+          sx={{ marginRight: '20px' }}
+          endIcon={<KeyboardArrowDownIcon />}
+          startIcon={<CheckCircleIcon sx={{ color: '#4caf50' }} />}
+        >
+          {network.title}
+        </Button>
+      ) : (
+        <Button
+          variant="outlined"
+          color="error"
           onClick={() => changeNetwork(SUPPORTED_NETWORKS[0])}
           sx={{ marginRight: '20px' }}
           endIcon={<KeyboardArrowDownIcon />}
@@ -81,7 +77,7 @@ export default function NetworkToggle() {
         >
           Wrong Network
         </Button>
-      }
+      )}
       <Popover
         open={Boolean(open)}
         anchorEl={open}
@@ -101,34 +97,38 @@ export default function NetworkToggle() {
         }}
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
-          <Typography variant="h6">
-            Change Network
-          </Typography>
+          <Typography variant="h6">Change Network</Typography>
         </Box>
         <Divider sx={{ borderStyle: 'dashed' }} />
         <Stack sx={{ p: 1 }}>
           {SUPPORTED_NETWORKS.map((option) => (
             <MenuItem key={option.name} onClick={() => changeNetwork(option)}>
-              <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                justifyContent="space-between"
+                sx={{ width: '100%' }}
+              >
                 <Stack direction="row" spacing={2} alignItems="center">
                   <img src={option.imgSrc} alt={option.title} width="20px" />
-                  <Typography variant="subtitle2">
-                    {option.title}
-                  </Typography>
+                  <Typography variant="subtitle2">{option.title}</Typography>
                 </Stack>
-                {chainId && chainId.toString() === option.chainId &&
-                  <div style={{
-                    width: '10px',
-                    height: '10px',
-                    background: '#4caf50',
-                    borderRadius: '50%'
-                  }} />
-                }
+                {chainId && chainId.toString() === option.chainId && (
+                  <div
+                    style={{
+                      width: '10px',
+                      height: '10px',
+                      background: '#4caf50',
+                      borderRadius: '50%',
+                    }}
+                  />
+                )}
               </Stack>
             </MenuItem>
           ))}
         </Stack>
       </Popover>
     </div>
-  )
+  );
 }

@@ -36,9 +36,9 @@ export const initialState = {
   dailyProtocolData: {
     date: [],
     totalValueLocked: [],
-    totalValueBorrowed: []
+    totalValueBorrowed: [],
   },
-}
+};
 const marketsReducer = (state = initialState, action) =>
   produce(state, (/* draft */) => {
     switch (action.type) {
@@ -48,7 +48,7 @@ const marketsReducer = (state = initialState, action) =>
           getMarketsLoading: true,
           getMarketsSuccess: false,
           getMarketsError: false,
-          markets: []
+          markets: [],
         };
       case globalTypes.GET_MARKETS_SUCCESS:
         return {
@@ -56,7 +56,7 @@ const marketsReducer = (state = initialState, action) =>
           getMarketsLoading: false,
           getMarketsSuccess: true,
           getMarketsError: false,
-          markets: action.data
+          markets: action.data,
         };
       case globalTypes.GET_MARKETS_ERROR:
         return {
@@ -64,7 +64,7 @@ const marketsReducer = (state = initialState, action) =>
           getMarketsLoading: false,
           getMarketsSuccess: false,
           getMarketsError: true,
-          markets: []
+          markets: [],
         };
       case globalTypes.GET_TOP_MARKETS_LOAD:
         return {
@@ -99,7 +99,7 @@ const marketsReducer = (state = initialState, action) =>
           dailyProtocolData: {
             date: [],
             totalValueLocked: [],
-            totalValueBorrowed: []
+            totalValueBorrowed: [],
           },
         };
       case globalTypes.GET_DAILY_PROTOCOL_DATA_SUCCESS:
@@ -119,7 +119,7 @@ const marketsReducer = (state = initialState, action) =>
           dailyProtocolData: {
             date: [],
             totalValueLocked: [],
-            totalValueBorrowed: []
+            totalValueBorrowed: [],
           },
         };
       case globalTypes.SET_MARKETS_STATS:
@@ -131,12 +131,12 @@ const marketsReducer = (state = initialState, action) =>
           totalUserBorrowed: action.data.totalUserBorrowed,
         };
       case globalTypes.UPDATE_MARKET:
-        const marketsData = state.markets.map(market => {
+        const marketsData = state.markets.map((market) => {
           if (market.id === action.data.id) {
-            return action.data.market
+            return action.data.market;
           }
           return market;
-        })
+        });
         return {
           ...state,
           markets: marketsData,

@@ -1,61 +1,61 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const getMarkets = gql`
-query markets {
-  markets(orderBy: totalDepositBalanceUSD, orderDirection: desc) {
-    id
-    name
-    isActive
-    canUseAsCollateral
-    canBorrowFrom
-    maximumLTV
-    liquidationThreshold
-    inputToken{
+  query markets {
+    markets(orderBy: totalDepositBalanceUSD, orderDirection: desc) {
       id
       name
-      lastPriceUSD
-      symbol
-      decimals
+      isActive
+      canUseAsCollateral
+      canBorrowFrom
+      maximumLTV
+      liquidationThreshold
+      inputToken {
+        id
+        name
+        lastPriceUSD
+        symbol
+        decimals
+      }
+      outputToken {
+        id
+        name
+        lastPriceUSD
+        symbol
+        decimals
+      }
+      rates {
+        id
+        rate
+        duration
+        maturityBlock
+        type
+      }
+      totalValueLockedUSD
+      totalDepositBalanceUSD
+      totalBorrowBalanceUSD
+      inputTokenBalance
+      inputTokenPriceUSD
+      outputTokenPriceUSD
+      exchangeRate
     }
-    outputToken {
-      id
-      name
-      lastPriceUSD
-      symbol
-      decimals
-    }
-    rates{
-      id
-      rate
-      duration
-      maturityBlock
-			type
-    }
-    totalValueLockedUSD
-    totalDepositBalanceUSD
-    totalBorrowBalanceUSD
-    inputTokenBalance
-    inputTokenPriceUSD
-    outputTokenPriceUSD
-    exchangeRate
   }
-}
 `;
 export const getDailyMarketTrends = gql`
-  query dailyMarkets{
+  query dailyMarkets {
     financialsDailySnapshots(orderBy: timestamp, orderDirection: desc) {
-        dailyDepositUSD
-        dailyWithdrawUSD
-        totalValueLockedUSD
-        totalDepositBalanceUSD
-        timestamp
-        totalBorrowBalanceUSD
-      }
+      dailyDepositUSD
+      dailyWithdrawUSD
+      totalValueLockedUSD
+      totalDepositBalanceUSD
+      timestamp
+      totalBorrowBalanceUSD
+    }
   }
-`
+`;
 
 export const totalSupplyTopMarkets = gql`
-  query dailyMarkets{
+  query dailyMarkets {
     markets(orderBy: totalDepositBalanceUSD, orderDirection: desc, first: 3) {
       inputToken {
         id
@@ -68,4 +68,4 @@ export const totalSupplyTopMarkets = gql`
       totalBorrowBalanceUSD
     }
   }
-`
+`;

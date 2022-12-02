@@ -1,8 +1,7 @@
 // Set of helper functions to facilitate wallet setup
 // @ts-nocheck
 
-import { nodes } from "./getRpcUrl";
-
+import { nodes } from './getRpcUrl';
 
 /**
  * Prompt the user to add BSC as a network on Metamask, or switch to BSC if the wallet is on a different network
@@ -30,9 +29,7 @@ const NATIVE_TOKENS = {
     decimals: '18',
   },
 };
-export const setupNetwork = async (
-  chainId
-) => {
+export const setupNetwork = async (chainId) => {
   const provider = window.ethereum;
   if (provider) {
     // @ts-ignore
@@ -43,7 +40,7 @@ export const setupNetwork = async (
     }
     try {
       await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
+        method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${chainIdFallback.toString(16)}` }],
       });
       return true;
@@ -51,11 +48,11 @@ export const setupNetwork = async (
       if (error.code === 4902) {
         // @ts-ignore
         await provider.request({
-          method: "wallet_addEthereumChain",
+          method: 'wallet_addEthereumChain',
           params: [
             {
               chainId: `0x${chainIdFallback.toString(16)}`,
-              chainName: "Matic",
+              chainName: 'Matic',
               nativeCurrency: {
                 name: NATIVE_TOKENS[chainIdFallback].name,
                 symbol: NATIVE_TOKENS[chainIdFallback].symbol,
@@ -63,7 +60,7 @@ export const setupNetwork = async (
               },
               // @ts-ignore
               rpcUrls: nodes[chainIdFallback],
-              blockExplorerUrls: ["https://polygonscan.com/"],
+              blockExplorerUrls: ['https://polygonscan.com/'],
             },
           ],
         });
@@ -73,9 +70,7 @@ export const setupNetwork = async (
       return false;
     }
   } else {
-    console.error(
-      "Can't setup the BSC network on metamask because window.ethereum is undefined"
-    );
+    console.error("Can't setup the BSC network on metamask because window.ethereum is undefined");
     return false;
   }
 };
@@ -88,17 +83,12 @@ export const setupNetwork = async (
  * @param tokenImage
  * @returns {boolean} true if the token has been added, false otherwise
  */
-export const registerToken = async (
-  tokenAddress,
-  tokenSymbol,
-  tokenDecimals,
-  tokenImage,
-) => {
+export const registerToken = async (tokenAddress, tokenSymbol, tokenDecimals, tokenImage) => {
   // @ts-ignore
   const tokenAdded = await window.ethereum.request({
-    method: "wallet_watchAsset",
+    method: 'wallet_watchAsset',
     params: {
-      type: "ERC20",
+      type: 'ERC20',
       options: {
         address: tokenAddress,
         symbol: tokenSymbol,

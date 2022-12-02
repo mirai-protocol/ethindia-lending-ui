@@ -1,12 +1,12 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
-import merge from "lodash.merge";
-import { useMemo } from "react";
-import { funlink } from "./link";
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+import merge from 'lodash.merge';
+import { useMemo } from 'react';
+import { funlink } from './link';
 
 export function createApolloClient() {
   const link = funlink();
   return new ApolloClient({
-    ssrMode: typeof window === "undefined",
+    ssrMode: typeof window === 'undefined',
     connectToDevTools: true,
     link,
     cache: new InMemoryCache(),
