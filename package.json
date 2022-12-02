@@ -51,6 +51,7 @@
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
     "apexcharts": "^3.36.0",
+    "bignumber.js": "^9.1.0",
     "change-case": "^4.1.2",
     "cryption-uikit-v2": "^0.1.43",
     "date-fns": "^2.29.3",
