@@ -419,7 +419,7 @@ function Row(props) {
                 <Grid item xs={12} sm={6} md={6}>
                   <Card sx={{ padding: '20px' }}>
                     <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ marginBottom: '20px' }}>
-                      <CardHeader title="Borrow from Market" sx={{ padding: '0px' }} subheader={`Available Amount: 0.05 ${inputToken.symbol}`} />
+                      <CardHeader title="Borrow from Market" sx={{ padding: '0px' }} subheader={`Balance: ${fShortenNumber(parseFloat(userData.tokenBal))} ${inputToken.symbol}`} />
                       <Stack alignItems="center" justifyContent="centercenter">
                         <span style={{
                           fontSize: '16px',
@@ -549,7 +549,7 @@ function MarketPage({ markets, updateMarket }) {
   return (
     <>
       <Helmet>
-        <title> Markets | Minimal UI </title>
+        <title> Markets | Mirai ProtocolMinimal UI </title>
       </Helmet>
 
       <Container>
