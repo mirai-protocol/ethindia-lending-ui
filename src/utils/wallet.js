@@ -31,9 +31,9 @@ const NATIVE_TOKENS = {
   },
 };
 export const setupNetwork = async (
-  chainId: number | string | undefined | null
+  chainId
 ) => {
-  const provider = (window as WindowChain).ethereum;
+  const provider = window.ethereum;
   if (provider) {
     // @ts-ignore
     let chainIdFallback = parseInt(chainId, 10);
@@ -89,13 +89,13 @@ export const setupNetwork = async (
  * @returns {boolean} true if the token has been added, false otherwise
  */
 export const registerToken = async (
-  tokenAddress: string,
-  tokenSymbol: string,
-  tokenDecimals: number,
-  tokenImage: string
+  tokenAddress,
+  tokenSymbol,
+  tokenDecimals,
+  tokenImage,
 ) => {
   // @ts-ignore
-  const tokenAdded = await (window as WindowChain).ethereum.request({
+  const tokenAdded = await window.ethereum.request({
     method: "wallet_watchAsset",
     params: {
       type: "ERC20",

@@ -1,13 +1,14 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
+import { useWeb3React } from '@web3-react/core';
 import { compose } from 'redux';
 import { useLocation } from 'react-router-dom';
 // @mui
 import { styled, alpha } from '@mui/material/styles';
 import { Box, Link, Drawer, Typography, Avatar } from '@mui/material';
 // mock
-import account from '../../../_mock/account';
+import { NETWORKS } from '../../../config'
 // hooks
 import useResponsive from '../../../hooks/useResponsive';
 // components
@@ -43,6 +44,10 @@ Nav.propTypes = {
 
 function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarketsError, setMarketsStats }) {
   const { pathname } = useLocation();
+  const {
+    account,
+    chainId,
+  } = useWeb3React();
   const isDesktop = useResponsive('up', 'lg');
   useEffect(() => {
     if (openNav) {
@@ -53,13 +58,16 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
   useEffect(() => {
     const getMarkets = async () => {
       getMarketsLoad();
-      const markets = await getMarketsData()
+      const markets = await getMarketsData(account)
       if (markets.success && markets.data.markets) {
         getMarketsSuccess(markets.data.markets)
         setMarketsStats({
           totalValueLocked: markets.data.totalSupply.toString(),
-          totalValueBorrowed: markets.data.totalBorrowed.toString()
+          totalValueBorrowed: markets.data.totalBorrowed.toString(),
+          totalUserBorrowed: markets.data.totalUserBorrowed.toString(),
+          totalUserSupplied: markets.data.totalUserSupplied.toString()
         })
+
       }
       if (markets.error) {
         getMarketsError()
@@ -67,7 +75,7 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
     }
     getMarkets()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [account]);
 
   const renderContent = (
     <Scrollbar
@@ -87,11 +95,11 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
 
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle1" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {account ? `${account.slice(0, 4)}....${account.slice(account.length - 4)}` : 'Mirai Protocol'}
               </Typography>
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                {NETWORKS[chainId] && NETWORKS[chainId].name ? NETWORKS[chainId].name : 'Wrong Network'}
               </Typography>
             </Box>
           </StyledAccount>

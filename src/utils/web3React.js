@@ -1,11 +1,10 @@
-import { ConnectorNames } from "cryption-uikit-v2";
-import Web3 from "web3";
+// import { ConnectorNames } from "cryption-uikit-v2";
 import getConnectors from "./web3Connectors";
 
 const connectors = getConnectors();
 
-export const connectorsByName: any  = {
-  [ConnectorNames.Injected]: connectors.injected,
+export const connectorsByName  = {
+  'injected': connectors.injected,
   // [ConnectorNames.WalletConnect]: connectors.walletConnectConnector,
   // [ConnectorNames.GoogleTorusConnector]: connectors.torusGoogleConnector,
   // [ConnectorNames.FacebookTorusConnector]: connectors.torusFacebookConnector,
@@ -15,6 +14,4 @@ export const connectorsByName: any  = {
   // [ConnectorNames.EmailTorusConnector]: connectors.torusEmailConnector,
 };
 
-export const getLibrary = (provider: any): Web3 => {
-  return provider;
-};
+export const getLibrary = (provider) => provider;

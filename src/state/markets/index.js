@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /* eslint-disable consistent-return */
 /* eslint-disable default-case */
 import produce from 'immer';
@@ -14,6 +15,7 @@ export const { Types: globalTypes, Creators: globalCreators } = createActions({
   getDailyProtocolDataLoad: ['data'],
   getDailyProtocolDataSuccess: ['data'],
   getDailyProtocolDataError: ['error'],
+  updateMarket: ['data'],
 });
 export const initialState = {
   getMarketsLoading: false,
@@ -22,6 +24,8 @@ export const initialState = {
   markets: [],
   totalValueLocked: '0',
   totalValueBorrowed: '0',
+  totalUserSupplied: '0',
+  totalUserBorrowed: '0',
   getTopMarketsLoading: false,
   getTopMarketsSuccess: false,
   getTopMarketsError: false,
@@ -123,6 +127,19 @@ const marketsReducer = (state = initialState, action) =>
           ...state,
           totalValueLocked: action.data.totalValueLocked,
           totalValueBorrowed: action.data.totalValueBorrowed,
+          totalUserSupplied: action.data.totalUserSupplied,
+          totalUserBorrowed: action.data.totalUserBorrowed,
+        };
+      case globalTypes.UPDATE_MARKET:
+        const marketsData = state.markets.map(market => {
+          if (market.id === action.data.id) {
+            return action.data.market
+          }
+          return market;
+        })
+        return {
+          ...state,
+          markets: marketsData,
         };
     }
   });
