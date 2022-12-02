@@ -109,7 +109,7 @@ function applySortFilter(array, comparator, query) {
 }
 function Row(props) {
   const { id, token, type, rating, price, supplyApy, borrowApy, totalSupply, totalBorrow, available } = props;
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   return (
     <>
       <TableRow hover key={id} tabIndex={-1} role="checkbox">
