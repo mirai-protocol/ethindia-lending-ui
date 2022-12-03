@@ -35,7 +35,7 @@ export const getMarketsData = async (account, chainId) => {
     if (account) {
       const query = {
         eulerContract: getEulerInstance().addresses.euler,
-        acccount: accountAddress,
+        account: accountAddress,
         markets: [],
       };
       marketsUserData = await euler.contracts.eulerGeneralView.doQuery(query);
