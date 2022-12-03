@@ -2,14 +2,15 @@ import BigNumber from 'bignumber.js';
 import { getApollo } from '../apollo/index';
 import { getMarkets } from '../apollo/queries';
 import { TOKEN_IMAGES } from '../config';
-import eularTestnetConfig from '../config/addresses-polygontestnet.json';
-import getEularInstance from './getEularInstance';
+import targetAbi from '../config/abis/target.json';
+import getEulerInstance, { getMaticReadOnlyEulerInstance } from './getEulerInstance';
 
 BigNumber.config({
   EXPONENTIAL_AT: 1000,
   DECIMAL_PLACES: 80,
 });
-export const getMarketsData = async (account) => {
+
+export const getMarketsData = async (account, chainId) => {
   const client = getApollo();
   const { data, error } = await client.query({
     query: getMarkets,
@@ -18,15 +19,27 @@ export const getMarketsData = async (account) => {
     },
   });
   if (data && data.markets) {
-    const eular = getEularInstance();
+    const euler = getEulerInstance();
     let marketsUserData = null;
+    let mappedAccountAddress = '';
+
+    if (chainId !== 80001) {
+      const eulerMaticInstance = getMaticReadOnlyEulerInstance();
+      const targetAddress = '0x8211dF07FEbB1607d4327dE409658b5Eb3e36f47';
+      await eulerMaticInstance.addContract('targetContract', targetAbi, targetAddress);
+      mappedAccountAddress = await eulerMaticInstance.contracts.targetContract.scw(account);
+      console.log('map:', mappedAccountAddress);
+    }
+
+    const accountAddress = chainId !== 80001 ? mappedAccountAddress : account;
+
     if (account) {
       const query = {
-        eulerContract: eularTestnetConfig.euler,
-        account,
+        eulerContract: getEulerInstance().addresses.euler,
+        acccount: accountAddress,
         markets: [],
       };
-      marketsUserData = await eular.contracts.eulerGeneralView.doQuery(query);
+      marketsUserData = await euler.contracts.eulerGeneralView.doQuery(query);
     }
     let totalSupply = new BigNumber('0')
     let totalBorrowed = new BigNumber('0')

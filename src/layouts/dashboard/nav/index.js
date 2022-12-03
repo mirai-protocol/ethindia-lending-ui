@@ -34,9 +34,7 @@ Nav.propTypes = {
 
 function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarketsError, setMarketsStats }) {
   const { pathname } = useLocation();
-  const {
-    account,
-  } = useWeb3React();
+  const { account, chainId } = useWeb3React();
   const isDesktop = useResponsive('up', 'lg');
   useEffect(() => {
     if (openNav) {
@@ -47,7 +45,7 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
   useEffect(() => {
     const getMarkets = async () => {
       getMarketsLoad();
-      const markets = await getMarketsData(account);
+      const markets = await getMarketsData(account, chainId);
       if (markets.success && markets.data.markets) {
         getMarketsSuccess(markets.data.markets);
         setMarketsStats({
@@ -56,9 +54,8 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
           totalUserBorrowed: markets.data.totalUserBorrowed.toString(),
           totalUserSupplied: markets.data.totalUserSupplied.toString(),
           totalUserCollateral: markets.data.totalUserCollateral.toString(),
-          totalUserLiadbility: markets.data.totalUserLiadbility.toString()
-        })
-
+          totalUserLiadbility: markets.data.totalUserLiadbility.toString(),
+        });
       }
       if (markets.error) {
         getMarketsError();

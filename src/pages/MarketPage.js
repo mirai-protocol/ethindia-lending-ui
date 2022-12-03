@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
-import {ethers} from 'ethers';
-import { MaxUint256 } from "@ethersproject/constants";
+import { ethers } from 'ethers';
+import { MaxUint256 } from '@ethersproject/constants';
 import { connect } from 'react-redux';
 import BigNumber from 'bignumber.js';
 import { compose } from 'redux';
@@ -51,7 +51,7 @@ import liabilityIcon from '../images/liability.png';
 import walletyIcon from '../images/wallet.png';
 import { globalCreators } from '../state/markets/index';
 import eularTestnetConfig from '../config/addresses-polygontestnet.json';
-import getEularInstance from '../utils/getEularInstance';
+import getEulerInstance from '../utils/getEulerInstance';
 import erc20Abi from '../config/abis/erc20.json';
 import useWeb3React from '../hooks/useWeb3React';
 
@@ -133,7 +133,7 @@ function Row(props) {
     available,
     userData,
   } = props.market;
-  const { account, updateMarket } = props;
+  const { account, updateMarket, chainId } = props;
   const [open, setOpen] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
   const [borrowLoading, setBorrowLoading] = useState(false);
@@ -145,15 +145,15 @@ function Row(props) {
     withdrawAmount: '0',
   });
   const [openMarketProcessing, setOpenMarketProcessing] = useState(false);
-  const [isEntered, setIsEntered] = useState(userData ? userData.isEntered: false);
+  const [isEntered, setIsEntered] = useState(userData ? userData.isEntered : false);
   const handleOpenMarket = async () => {
     try {
-      setOpenMarketProcessing(true)
-      const eularInstance = getEularInstance()
+      setOpenMarketProcessing(true);
+      const eularInstance = getEulerInstance();
       const tx = await eularInstance.contracts.markets.enterMarket('0', inputToken.id);
       await tx.wait();
-      setIsEntered(true)
-      setOpenMarketProcessing(false)
+      setIsEntered(true);
+      setOpenMarketProcessing(false);
     } catch (error) {
       setOpenMarketProcessing(false);
       console.error(error);
@@ -168,9 +168,9 @@ function Row(props) {
   const handleApprove = async () => {
     try {
       setApproveLoading(true);
-      const eularInstance = getEularInstance();
+      const eularInstance = getEulerInstance();
       await eularInstance.addContract(inputToken.symbol.toLowerCase(), erc20Abi, inputToken.id);
-      const approvalAmount = ethers.BigNumber.from(MaxUint256.toString())
+      const approvalAmount = ethers.BigNumber.from(MaxUint256.toString());
       const approvalTxn = await eularInstance.contracts[inputToken.symbol.toLowerCase()].approve(
         eularInstance.addresses.euler,
         approvalAmount
@@ -199,7 +199,7 @@ function Row(props) {
     }
   };
   const updateUserStats = async () => {
-    const eularInstance = getEularInstance();
+    const eularInstance = getEulerInstance();
     const query = {
       eulerContract: eularTestnetConfig.euler,
       account,
@@ -254,7 +254,7 @@ function Row(props) {
   };
   const handleDeposit = async () => {
     try {
-      const eularInstance = getEularInstance();
+      const eularInstance = getEulerInstance();
       setDepositLoading(true);
       const eToken = await eularInstance.eTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.depositAmount)
@@ -271,8 +271,8 @@ function Row(props) {
   };
   const handleBorrow = async () => {
     try {
-      setBorrowLoading(true)
-      const eularInstance = getEularInstance()
+      setBorrowLoading(true);
+      const eularInstance = getEulerInstance();
       const dToken = await eularInstance.dTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
@@ -285,28 +285,28 @@ function Row(props) {
       setBorrowLoading(false);
       console.error(error);
     }
-  }
+  };
   const handleWithdraw = async () => {
     try {
-      setWithdrawLoading(true)
-      const eularInstance = getEularInstance()
+      setWithdrawLoading(true);
+      const eularInstance = getEulerInstance();
       const eToken = await eularInstance.eTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.depositAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
-        .toJSON()
-      const tx = await eToken.withdraw('0', approvalAmount)
+        .toJSON();
+      const tx = await eToken.withdraw('0', approvalAmount);
       await tx.wait();
-      setWithdrawLoading(false)
-      updateUserStats()
+      setWithdrawLoading(false);
+      updateUserStats();
     } catch (error) {
-      setWithdrawLoading(false)
-      console.error(error)
+      setWithdrawLoading(false);
+      console.error(error);
     }
-  }
+  };
   const handleRepay = async () => {
     try {
       setRepayLoading(true);
-      const eularInstance = getEularInstance();
+      const eularInstance = getEulerInstance();
       const dToken = await eularInstance.dTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
@@ -373,9 +373,7 @@ function Row(props) {
           </span>
         </TableCell>
         <TableCell align="right">
-          <span style={{ fontWeight: '700', fontSize: '16px' }}>
-            $ {fShortenNumber(totalDepositBalanceUSD)}
-          </span>
+          <span style={{ fontWeight: '700', fontSize: '16px' }}>$ {fShortenNumber(totalDepositBalanceUSD)}</span>
         </TableCell>
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px', color: '#ffa000' }}>
@@ -449,47 +447,59 @@ function Row(props) {
                         </InputAdornment>
                       }
                     />
-                    {parseFloat(userData.eulerAllowance) > 0 ?
-                      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={3} sx={{ marginTop: '20px' }}>
+                    {parseFloat(userData.eulerAllowance) > 0 ? (
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        spacing={3}
+                        sx={{ marginTop: '20px' }}
+                      >
                         <Button
                           variant="outlined"
                           fullWidth
                           onClick={handleWithdraw}
-                          disabled={withdrawLoading || parseFloat(amounts.depositAmount) <= 0 || parseFloat(userData.eulerAllowance) <= parseFloat(amounts.depositAmount)}
+                          disabled={
+                            withdrawLoading ||
+                            parseFloat(amounts.depositAmount) <= 0 ||
+                            parseFloat(userData.eulerAllowance) <= parseFloat(amounts.depositAmount)
+                          }
                           endIcon={<AddCircleIcon />}
                         >
                           {withdrawLoading ? 'Processing...' : `Withdraw ${inputToken.symbol}`}
                         </Button>
-                        {parseFloat(userData.eulerAllowance) > parseFloat(amounts.depositAmount) ?
-                          <Button variant="contained"
+                        {parseFloat(userData.eulerAllowance) > parseFloat(amounts.depositAmount) ? (
+                          <Button
+                            variant="contained"
                             onClick={handleDeposit}
                             fullWidth
                             disabled={depositLoading || parseFloat(amounts.depositAmount) <= 0}
                           >
                             {depositLoading ? 'Processing...' : 'Deposit'}
                           </Button>
-                          :
-                          <Button variant="contained"
+                        ) : (
+                          <Button
+                            variant="contained"
                             onClick={handleApprove}
                             fullWidth
                             disabled={approveLoading || parseFloat(amounts.depositAmount) <= 0}
                           >
                             {approveLoading ? 'Processing...' : 'Approve'}
                           </Button>
-                        }
+                        )}
                       </Stack>
-                      :
-                      <Button variant="outlined"
+                    ) : (
+                      <Button
+                        variant="outlined"
                         onClick={handleApprove}
                         fullWidth
                         disabled={
-                          approveLoading ||
-                          parseFloat(userData.eulerAllowance) > parseFloat(amounts.depositAmount)
+                          approveLoading || parseFloat(userData.eulerAllowance) > parseFloat(amounts.depositAmount)
                         }
                       >
                         {approveLoading ? 'Processing...' : 'Approve'}
                       </Button>
-                    }
+                    )}
                   </Card>
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
@@ -585,7 +595,7 @@ function Row(props) {
   );
 }
 function MarketPage({ markets, updateMarket }) {
-  const { account } = useWeb3React();
+  const { account, chainId } = useWeb3React();
   const [open, setOpen] = useState(null);
   const [marketsData, setMarkestData] = useState([]);
   const [page, setPage] = useState(0);
@@ -656,10 +666,22 @@ function MarketPage({ markets, updateMarket }) {
         <div style={{ marginBottom: '30px' }}>
           <Grid container spacing={3} justifyContent="center">
             <Grid item xs={12} sm={6} md={3}>
-              <AppWidgetSummary title="Total Supplied Amount" prefix="$ " total={parseFloat(markets.totalUserSupplied)} color="info" icon={<img src={walletyIcon} width="40px" alt="Markets" />} />
+              <AppWidgetSummary
+                title="Total Supplied Amount"
+                prefix="$ "
+                total={parseFloat(markets.totalUserSupplied)}
+                color="info"
+                icon={<img src={walletyIcon} width="40px" alt="Markets" />}
+              />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <AppWidgetSummary title="Total Collateral Avaialble" prefix="$ " total={parseFloat(markets.totalUserCollateral)} color="success" icon={<img src={walletyIcon} width="40px" alt="Markets" />} />
+              <AppWidgetSummary
+                title="Total Collateral Avaialble"
+                prefix="$ "
+                total={parseFloat(markets.totalUserCollateral)}
+                color="success"
+                icon={<img src={walletyIcon} width="40px" alt="Markets" />}
+              />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <AppWidgetSummary
@@ -671,7 +693,13 @@ function MarketPage({ markets, updateMarket }) {
               />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <AppWidgetSummary title="Availabe Amount" prefix="$ " total={parseFloat(markets.totalUserCollateral) - parseFloat(markets.totalUserBorrowed)} color="success" icon={<img src={liabilityIcon} width="40px" alt="Markets" />} />
+              <AppWidgetSummary
+                title="Availabe Amount"
+                prefix="$ "
+                total={parseFloat(markets.totalUserCollateral) - parseFloat(markets.totalUserBorrowed)}
+                color="success"
+                icon={<img src={liabilityIcon} width="40px" alt="Markets" />}
+              />
             </Grid>
           </Grid>
         </div>
@@ -692,7 +720,7 @@ function MarketPage({ markets, updateMarket }) {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                    <Row market={row} key={row.id} account={account} updateMarket={updateMarket} />
+                    <Row market={row} key={row.id} account={account} chainID={chainId} updateMarket={updateMarket} />
                   ))}
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 53 * emptyRows }}>
