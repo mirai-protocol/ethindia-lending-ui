@@ -9,8 +9,6 @@ import { compose } from 'redux';
 import { styled, alpha } from '@mui/material/styles';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 // import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
 // @mui
@@ -64,7 +62,7 @@ import {
   TARGET_ADDRESS,
 } from '../config';
 import targetAbi from '../config/abis/target.json';
-import { getUserstats } from '../utils/getMarketsData'
+import { getUserstats } from '../utils/getMarketsData';
 
 BigNumber.config({
   EXPONENTIAL_AT: 1000,
@@ -217,6 +215,47 @@ function Row(props) {
       console.log('error', error);
     }
   };
+  const handleApproveForRepay = async () => {
+    try {
+      setApproveLoading(true);
+      const eulerInstance = getEulerInstance(chainId);
+
+      await eulerInstance.addContract(
+        inputToken.symbol.toLowerCase(),
+        erc20Abi,
+        nonMaticTokenAddressMapping[inputToken.symbol.toLowerCase()][chainId]
+      );
+      const approvalAmount = ethers.BigNumber.from(MaxUint256.toString());
+      const dContractAddress = addressesChainMappings.dToken[chainId];
+
+      const approvalTxn = await eulerInstance.contracts[inputToken.symbol.toLowerCase()].approve(
+        dContractAddress,
+        approvalAmount
+      );
+      await approvalTxn.wait();
+
+      const allowance = await eulerInstance.contracts[inputToken.symbol.toLowerCase()].allowance(
+        account,
+        dContractAddress
+      );
+      const repayAllowance = new BigNumber(allowance.toString()).dividedBy(10 ** parseFloat(inputToken.decimals));
+      const newMarket = {
+        id,
+        market: {
+          ...props.market,
+          userData: {
+            ...userData,
+            repayAllowance: repayAllowance.toString(),
+          },
+        },
+      };
+      updateMarket(newMarket);
+      setApproveLoading(false);
+    } catch (error) {
+      setApproveLoading(false);
+      console.log('Error in handleApproveForRepay: ', error);
+    }
+  };
   const updateUserStats = async () => {
     const eularInstance = getEulerInstance(chainId);
     let mappedAccountAddress = null;
@@ -252,37 +291,35 @@ function Row(props) {
       let dTokenBalance = new BigNumber('0');
       marketsUserData.markets.forEach(async (market) => {
         if (market[0] === isEntered) {
-          const mappedMarkert = mappedUserData.markets.find(mappedmarket => mappedmarket[0] === market[0])
-          const mappedData = await getUserstats(market)
-          liabilityValue = liabilityValue.plus(mappedData.liabilityValue)
-          collateralValue = collateralValue.plus(mappedData.collateralValue)
-          tokenBal = tokenBal.plus(mappedData.tokenBal)
-          eulerAllowance = eulerAllowance.plus(mappedData.eulerAllowance)
-          eTokenBalanceUnderlying = eTokenBalanceUnderlying.plus(mappedData.eTokenBalanceUnderlying)
-          dTokenBalance = dTokenBalance.plus(mappedData.dTokenBalance)
+          const mappedMarkert = mappedUserData.markets.find((mappedmarket) => mappedmarket[0] === market[0]);
+          const mappedData = await getUserstats(market);
+          liabilityValue = liabilityValue.plus(mappedData.liabilityValue);
+          collateralValue = collateralValue.plus(mappedData.collateralValue);
+          tokenBal = tokenBal.plus(mappedData.tokenBal);
+          eulerAllowance = eulerAllowance.plus(mappedData.eulerAllowance);
+          eTokenBalanceUnderlying = eTokenBalanceUnderlying.plus(mappedData.eTokenBalanceUnderlying);
+          dTokenBalance = dTokenBalance.plus(mappedData.dTokenBalance);
           if (mappedMarkert) {
-            const mappedmarketData = await getUserstats(mappedMarkert)
-            liabilityValue = liabilityValue.plus(mappedmarketData.liabilityValue)
-            collateralValue = collateralValue.plus(mappedmarketData.collateralValue)
-            eTokenBalanceUnderlying = eTokenBalanceUnderlying.plus(mappedmarketData.eTokenBalanceUnderlying)
-            dTokenBalance = dTokenBalance.plus(mappedmarketData.dTokenBalance)
+            const mappedmarketData = await getUserstats(mappedMarkert);
+            liabilityValue = liabilityValue.plus(mappedmarketData.liabilityValue);
+            collateralValue = collateralValue.plus(mappedmarketData.collateralValue);
+            eTokenBalanceUnderlying = eTokenBalanceUnderlying.plus(mappedmarketData.eTokenBalanceUnderlying);
+            dTokenBalance = dTokenBalance.plus(mappedmarketData.dTokenBalance);
           }
         }
       });
       if (chainId === 5) {
-        const tokenAddress = nonMaticTokenAddressMapping[inputToken.symbol.toLowerCase()][chainId]
+        const tokenAddress = nonMaticTokenAddressMapping[inputToken.symbol.toLowerCase()][chainId];
         if (tokenAddress) {
-          await eularInstance.addContract(`g${inputToken.symbol.toLowerCase()}`, erc20Abi, tokenAddress)
+          await eularInstance.addContract(`g${inputToken.symbol.toLowerCase()}`, erc20Abi, tokenAddress);
           const allowence = await eularInstance.contracts[`g${inputToken.symbol.toLowerCase()}`].allowance(
             account,
             addressesChainMappings.eToken[chainId]
           );
-          console.log(account,
-            tokenAddress,
-            addressesChainMappings.eToken[chainId])
-          eulerAllowance = allowence.toString()
+          console.log(account, tokenAddress, addressesChainMappings.eToken[chainId]);
+          eulerAllowance = allowence.toString();
           const tokenBalGoeri = await eularInstance.contracts[`g${inputToken.symbol.toLowerCase()}`].balanceOf(account);
-          tokenBal = new BigNumber(tokenBalGoeri.toString()).dividedBy(10 ** parseFloat(inputToken.decimals))
+          tokenBal = new BigNumber(tokenBalGoeri.toString()).dividedBy(10 ** parseFloat(inputToken.decimals));
         }
       }
       const updatedUserData = {
@@ -566,9 +603,8 @@ function Row(props) {
                             parseFloat(amounts.depositAmount) <= 0 ||
                             parseFloat(userData.eulerAllowance) <= parseFloat(amounts.depositAmount)
                           }
-                          endIcon={<AddCircleIcon />}
                         >
-                          {withdrawLoading ? 'Processing...' : `Withdraw ${inputToken.symbol}`}
+                          {withdrawLoading ? 'Processing...' : 'Withdraw'}
                         </Button>
                         {parseFloat(userData.eulerAllowance) > parseFloat(amounts.depositAmount) ? (
                           <Button
@@ -649,32 +685,59 @@ function Row(props) {
                         </InputAdornment>
                       }
                     />
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      spacing={3}
-                      sx={{ marginTop: '20px' }}
-                    >
+
+                    {parseFloat(userData.repayAllowance) > 0 ? (
+                      <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        spacing={3}
+                        sx={{ marginTop: '20px' }}
+                      >
+                        {parseFloat(userData.repayAllowance) > parseFloat(amounts.withdrawAmount) ? (
+                          <Button
+                            variant="outlined"
+                            fullWidth
+                            onClick={handleRepay}
+                            disabled={repayLoading || parseFloat(amounts.withdrawAmount) <= 0}
+                          >
+                            {repayLoading ? 'Processing...' : 'Repay'}
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="contained"
+                            onClick={handleApproveForRepay}
+                            fullWidth
+                            disabled={approveLoading || parseFloat(amounts.withdrawAmount) <= 0}
+                          >
+                            {approveLoading ? 'Processing...' : 'Approve'}
+                          </Button>
+                        )}
+                        <Button
+                          variant="contained"
+                          onClick={handleBorrow}
+                          disabled={
+                            borrowLoading ||
+                            parseFloat(amounts.withdrawAmount) <= 0 ||
+                            parseFloat(userData.repayAllowance) <= parseFloat(amounts.withdrawAmount)
+                          }
+                          fullWidth
+                        >
+                          {borrowLoading ? 'Processing...' : 'Borrow'}
+                        </Button>
+                      </Stack>
+                    ) : (
                       <Button
                         variant="outlined"
+                        onClick={handleApproveForRepay}
                         fullWidth
-                        onClick={handleRepay}
-                        disabled={repayLoading}
-                        endIcon={<RemoveCircleIcon />}
+                        disabled={
+                          approveLoading || parseFloat(userData.repayAllowance) > parseFloat(amounts.withdrawAmount)
+                        }
                       >
-                        {repayLoading ? 'Processing...' : 'Repay'}
+                        {approveLoading ? 'Processing...' : 'Approve'}
                       </Button>
-                      <Button
-                        variant="contained"
-                        onClick={handleBorrow}
-                        disabled={borrowLoading}
-                        fullWidth
-                        endIcon={<RemoveCircleIcon />}
-                      >
-                        {borrowLoading ? 'Processing...' : 'Borrow From Market'}
-                      </Button>
-                    </Stack>
+                    )}
                   </Card>
                 </Grid>
               </Grid>
