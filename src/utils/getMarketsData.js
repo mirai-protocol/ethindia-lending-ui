@@ -127,6 +127,7 @@ export const getMarketsData = async (account, chainId) => {
                 }
               }
             }));
+            repayAllowence = eulerAllowance;
             if (chainId === 5) {
               const tokenAddress = nonMaticTokenAddressMapping[eachMarket.inputToken.symbol.toLowerCase()][chainId]
               if (tokenAddress) {
