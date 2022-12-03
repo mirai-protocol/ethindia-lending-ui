@@ -112,11 +112,7 @@ function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNot
       channelAddress: `eip155:${chainId}:${channelAddress}`, // channel address in CAIP
       userAddress: `eip155:${chainId}:${account}`, // user address in CAIP
       onSuccess: () => {
-        console.log('opt in success');
         setNotificationOn(true);
-      },
-      onError: () => {
-        console.error('opt in error');
       },
       env: 'staging',
     });
@@ -206,7 +202,6 @@ function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNot
       } catch (error) {
         console.log(error)
       }
-      console.log({ account, chainId })
     }
 
     if (account) {
