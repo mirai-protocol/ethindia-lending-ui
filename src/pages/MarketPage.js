@@ -685,7 +685,7 @@ function Row(props) {
                       }
                     />
 
-                    {parseFloat(userData.repayAllowance) > 0 ? (
+                    {parseFloat(userData.repayAllowence) > 0 ? (
                       <Stack
                         direction="row"
                         alignItems="center"
@@ -693,7 +693,7 @@ function Row(props) {
                         spacing={3}
                         sx={{ marginTop: '20px' }}
                       >
-                        {parseFloat(userData.repayAllowance) > parseFloat(amounts.withdrawAmount) ? (
+                        {new BigNumber(userData.repayAllowence).isGreaterThan(amounts.withdrawAmount) ? (
                           <Button
                             variant="outlined"
                             fullWidth
@@ -718,7 +718,7 @@ function Row(props) {
                           disabled={
                             borrowLoading ||
                             parseFloat(amounts.withdrawAmount) <= 0 ||
-                            parseFloat(userData.repayAllowance) <= parseFloat(amounts.withdrawAmount)
+                            parseFloat(userData.repayAllowence) <= parseFloat(amounts.withdrawAmount)
                           }
                           fullWidth
                         >
@@ -731,7 +731,7 @@ function Row(props) {
                         onClick={handleApproveForRepay}
                         fullWidth
                         disabled={
-                          approveLoading || parseFloat(userData.repayAllowance) > parseFloat(amounts.withdrawAmount)
+                          approveLoading || parseFloat(userData.repayAllowence) > parseFloat(amounts.withdrawAmount)
                         }
                       >
                         {approveLoading ? 'Processing...' : 'Approve'}
