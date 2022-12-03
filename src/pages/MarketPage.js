@@ -56,7 +56,7 @@ import erc20Abi from '../config/abis/erc20.json';
 import useWeb3React from '../hooks/useWeb3React';
 import eTokenAbi from '../config/abis/eSource.json';
 import dTokenAbi from '../config/abis/dSource.json';
-import { addressesChainMappings } from '../config';
+import { addressesChainMappings, destinationDomain, relayFee, TARGET_ADDRESS } from '../config';
 
 BigNumber.config({
   EXPONENTIAL_AT: 1000,
@@ -264,7 +264,12 @@ function Row(props) {
         const approvalAmount = new BigNumber(amounts.depositAmount)
           .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
           .toJSON();
-        const tx = await eulerInstance.contracts.eTokenContract.deposit('0', approvalAmount);
+        const tx = await eulerInstance.contracts.eTokenContract.deposit(
+          TARGET_ADDRESS,
+          destinationDomain,
+          approvalAmount,
+          relayFee
+        );
         await tx.wait();
       } else {
         const eToken = await eulerInstance.eTokenOf(inputToken.id);
