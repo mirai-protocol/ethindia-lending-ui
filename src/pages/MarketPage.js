@@ -264,11 +264,12 @@ function Row(props) {
     try {
       const eulerInstance = getEulerInstance();
       setDepositLoading(true);
+      const approvalAmount = new BigNumber(amounts.depositAmount)
+        .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
+        .toJSON();
+
       if (chainId !== 80001) {
         await eulerInstance.addContract('eTokenContract', eTokenAbi, addressesChainMappings.eToken[chainId]);
-        const approvalAmount = new BigNumber(amounts.depositAmount)
-          .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
-          .toJSON();
         const tx = await eulerInstance.contracts.eTokenContract.deposit(
           TARGET_ADDRESS,
           destinationDomain,
@@ -278,9 +279,6 @@ function Row(props) {
         await tx.wait();
       } else {
         const eToken = await eulerInstance.eTokenOf(inputToken.id);
-        const approvalAmount = new BigNumber(amounts.depositAmount)
-          .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
-          .toJSON();
         const tx = await eToken.deposit('0', approvalAmount);
         await tx.wait();
       }
@@ -311,13 +309,26 @@ function Row(props) {
   const handleWithdraw = async () => {
     try {
       setWithdrawLoading(true);
-      const eularInstance = getEulerInstance();
-      const eToken = await eularInstance.eTokenOf(inputToken.id);
+      const eulerInstance = getEulerInstance();
       const approvalAmount = new BigNumber(amounts.depositAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
         .toJSON();
-      const tx = await eToken.withdraw('0', approvalAmount);
-      await tx.wait();
+
+      if (chainId !== 80001) {
+        await eulerInstance.addContract('eTokenContract', eTokenAbi, addressesChainMappings.eToken[chainId]);
+        const tx = await eulerInstance.contracts.eTokenContract.withdraw(
+          TARGET_ADDRESS,
+          destinationDomain,
+          approvalAmount,
+          relayFee
+        );
+        await tx.wait();
+      } else {
+        const eToken = await eulerInstance.eTokenOf(inputToken.id);
+        const tx = await eToken.withdraw('0', approvalAmount);
+        await tx.wait();
+      }
+
       setWithdrawLoading(false);
       updateUserStats();
     } catch (error) {
