@@ -110,7 +110,7 @@ function DashboardAppPage({ markets, getTopMarketsLoad, getTopMarketsSuccess, ge
   return (
     <>
       <Helmet>
-        <title> Dashboard | Minimal UI </title>
+        <title> Dashboard | Mirai ProtocolMinimal UI </title>
       </Helmet>
 
       <Container maxWidth="xl">

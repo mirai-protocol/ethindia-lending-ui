@@ -85,7 +85,7 @@ export const getMarketsData = async (account) => {
           borrowerApy = borrower.rate
         }
         if (supplier) {
-          supplierApy = borrower.rate
+          supplierApy = supplier.rate
         }
       }
       eachMarket = {

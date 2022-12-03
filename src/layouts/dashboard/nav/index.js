@@ -12,7 +12,7 @@ import { NETWORKS } from '../../../config'
 // hooks
 import useResponsive from '../../../hooks/useResponsive';
 // components
-import Logo from '../../../components/logo';
+import logo from '../../../images/mirainameBg.png';
 import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 //
@@ -85,7 +85,7 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
       }}
     >
       <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
-        <Logo />
+        <img src={logo} alt="Mirai" width="150px" />
       </Box>
 
       <Box sx={{ mb: 5, mx: 2.5 }}>
