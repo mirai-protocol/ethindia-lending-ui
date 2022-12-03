@@ -1,12 +1,18 @@
+/* eslint-disable array-callback-return */
+/* eslint-disable consistent-return */
 // @mui
 import { styled as muiStyled } from '@mui/material/styles';
+import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
 import FormGroup from '@mui/material/FormGroup';
+import { faker } from '@faker-js/faker';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { Box, Stack, AppBar, Toolbar, Typography } from '@mui/material';
 // utils
 import { useCallback, useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
 import * as PushAPI from '@pushprotocol/restapi';
 import { ethers } from 'ethers';
 import { bgBlur } from '../../../utils/cssStyles';
@@ -15,6 +21,7 @@ import AccountPopover from './AccountPopover';
 import NotificationsPopover from './NotificationsPopover';
 import NetworkToggle from './NetworkToggle';
 import crossChain from '../../../images/alert.gif';
+import { globalCreators } from '../../../state/markets/index';
 
 // ----------------------------------------------------------------------
 
@@ -82,12 +89,16 @@ const CrossChainEnabled = styled.div`
   }
 `;
 Header.propTypes = {
-  // onOpenNav: PropTypes.func,
+  getAllNotificationsLoad: PropTypes.func,
+  getAllNotificationsSuccess: PropTypes.func,
+  getAllNotificationsError: PropTypes.func,
+  // addNewNotification: PropTypes.func,
+  // updateNotification: PropTypes.func
 };
 
 const Label = () => <div style={{ color: '#212B36' }}>Notify Me!</div>;
 
-export default function Header() {
+function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNotificationsError }) {
   const channelAddress = '0x4274A49FBeB724D75b8ba7bfC55FC8495A15AD1E';
   const [notificationOn, setNotificationOn] = useState(false);
   const { chainId, account } = useWeb3React();
@@ -121,12 +132,32 @@ export default function Header() {
     }
   }, [account, chainId]);
   const getNotifications = useCallback(async () => {
-    const notifications = await PushAPI.user.getFeeds({
-      user: `eip155:${chainId}:${account}`, // user address in CAIP
-      env: 'staging',
-    });
-    console.log('notifications: ', notifications);
-  }, [account, chainId]);
+    try {
+      getAllNotificationsLoad()
+      const notifications = await PushAPI.user.getFeeds({
+        user: `eip155:${chainId}:${account}`, // user address in CAIP
+        env: 'staging',
+      });
+      let filteredNotificaitons = notifications.filter(notification => notification.app === 'mirai-crosschain-notifications')
+      filteredNotificaitons = filteredNotificaitons.map(notification => {
+        if(notification.app === 'mirai-crosschain-notifications'){
+          const updatednotification = {
+            ...notification,
+            description: notification.notification.body,
+            isUnRead: false,
+            type: 'order_placed',
+            id: faker.datatype.uuid(),
+          }
+          console.log({ updatednotification })
+          return updatednotification;
+        }
+      })
+      getAllNotificationsSuccess(filteredNotificaitons)
+    } catch(error) {
+      getAllNotificationsError()
+      console.error(error)
+    }
+  }, [account, chainId, getAllNotificationsError, getAllNotificationsLoad, getAllNotificationsSuccess]);
 
   useEffect(() => {
     getPushSubscriptions();
@@ -177,3 +208,21 @@ export default function Header() {
     </StyledRoot>
   );
 }
+const mapStateToProps = (state) => ({
+  markets: state.markets,
+});
+
+export function mapDispatchToProps(dispatch) {
+  const { getAllNotificationsLoad, getAllNotificationsSuccess, getAllNotificationsError, addNewNotification, updateNotification } = globalCreators;
+  return {
+    getAllNotificationsLoad: () => dispatch(getAllNotificationsLoad()),
+    getAllNotificationsError: () => dispatch(getAllNotificationsError()),
+    getAllNotificationsSuccess: (data) => dispatch(getAllNotificationsSuccess(data)),
+    addNewNotification: (data) => dispatch(addNewNotification(data)),
+    updateNotification: (data) => dispatch(updateNotification(data)),
+  };
+}
+
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
+
+export default compose(withConnect)(Header);

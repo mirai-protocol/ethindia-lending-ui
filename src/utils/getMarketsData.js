@@ -60,13 +60,9 @@ export const getMarketsData = async (account, chainId) => {
     let marketsUserData = null;
     let mappedUserData = null;
     let mappedAccountAddress = null;
-
-    if (chainId !== 80001) {
-      const eulerMaticInstance = getMaticReadOnlyEulerInstance();
-      await eulerMaticInstance.addContract('targetContract', targetAbi, TARGET_ADDRESS);
-      mappedAccountAddress = await eulerMaticInstance.contracts.targetContract.scw(account);
-    }
-
+    const eulerMaticInstance = getMaticReadOnlyEulerInstance();
+    await eulerMaticInstance.addContract('targetContract', targetAbi, TARGET_ADDRESS);
+    mappedAccountAddress = await eulerMaticInstance.contracts.targetContract.scw(account);
     if (account) {
       const query = {
         eulerContract: getMaticReadOnlyEulerInstance().addresses.euler,
@@ -112,7 +108,7 @@ export const getMarketsData = async (account, chainId) => {
             let eulerAllowance = new BigNumber('0');
             let eTokenBalanceUnderlying = new BigNumber('0');
             let dTokenBalance = new BigNumber('0');
-            marketsUserData.markets.forEach(async (market) => {
+            await Promise.all(marketsUserData.markets.map(async (market) => {
               if (market[0] === isEntered) {
                 const mappedMarkert = mappedUserData.markets.find(mappedmarket => mappedmarket[0] === market[0])
                 const mappedData = await getUserstats(market)
@@ -130,7 +126,7 @@ export const getMarketsData = async (account, chainId) => {
                   dTokenBalance = dTokenBalance.plus(mappedmarketData.dTokenBalance)
                 }
               }
-            });
+            }));
             if (chainId === 5) {
               const tokenAddress = nonMaticTokenAddressMapping[eachMarket.inputToken.symbol.toLowerCase()][chainId]
               if (tokenAddress) {
@@ -155,6 +151,7 @@ export const getMarketsData = async (account, chainId) => {
             totalUserBorrowed = totalUserBorrowed.plus(dTokenBalance).multipliedBy(eachMarket.inputTokenPriceUSD);
             totalUserLiadbility = totalUserLiadbility.plus(liabilityValue);
             totalUserCollateral = totalUserCollateral.plus(collateralValue);
+            console.log('check', liabilityValue.toString(), collateralValue.toString(), tokenBal.toString(), eulerAllowance.toString(), eTokenBalanceUnderlying.toString(), dTokenBalance.toString())
             userData = {
               ...userData,
               isEntered: true,
@@ -166,6 +163,7 @@ export const getMarketsData = async (account, chainId) => {
               totalCollatral: collateralValue.toString(),
               totalLiability: liabilityValue.toString(),
             };
+            console.log({ userData })
           }
         }
         totalSupply = totalSupply.plus(eachMarket.totalValueLockedUSD);

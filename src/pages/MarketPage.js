@@ -316,7 +316,6 @@ function Row(props) {
             account,
             addressesChainMappings.eToken[chainId]
           );
-          console.log(account, tokenAddress, addressesChainMappings.eToken[chainId]);
           eulerAllowance = allowence.toString();
           const tokenBalGoeri = await eularInstance.contracts[`g${inputToken.symbol.toLowerCase()}`].balanceOf(account);
           tokenBal = new BigNumber(tokenBalGoeri.toString()).dividedBy(10 ** parseFloat(inputToken.decimals));

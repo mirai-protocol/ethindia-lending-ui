@@ -15,7 +15,11 @@ export const { Types: globalTypes, Creators: globalCreators } = createActions({
   getDailyProtocolDataLoad: ['data'],
   getDailyProtocolDataSuccess: ['data'],
   getDailyProtocolDataError: ['error'],
-  updateMarket: ['data'],
+  getAllNotificationsLoad: ['data'],
+  getAllNotificationsSuccess: ['data'],
+  getAllNotificationsError: ['error'],
+  addNewNotification: ['data'],
+  updateNotification: ['data'],
 });
 export const initialState = {
   getMarketsLoading: false,
@@ -40,6 +44,10 @@ export const initialState = {
     totalValueLocked: [],
     totalValueBorrowed: [],
   },
+  getAllNotificationsLoading: false,
+  getAllNotificationsSuccess: false,
+  getAllNotificationsError: false,
+  notificaitons: [],
 };
 const marketsReducer = (state = initialState, action) =>
   produce(state, (/* draft */) => {
@@ -144,6 +152,53 @@ const marketsReducer = (state = initialState, action) =>
         return {
           ...state,
           markets: marketsData,
+        };
+      case globalTypes.GET_ALL_NOTIFICATIONS_LOAD:
+        return {
+          ...state,
+          getAllNotificationsLoading: true,
+          getAllNotificationsSuccess: false,
+          getAllNotificationsError: false,
+          notificaitons: [],
+        };
+      case globalTypes.GET_ALL_NOTIFICATIONS_SUCCESS:
+        return {
+          ...state,
+          getAllNotificationsLoading: false,
+          getAllNotificationsSuccess: true,
+          getAllNotificationsError: false,
+          notificaitons: action.data,
+        };
+      case globalTypes.GET_ALL_NOTIFICATIONS_ERROR:
+        return {
+          ...state,
+          getAllNotificationsLoading: false,
+          getAllNotificationsSuccess: false,
+          getAllNotificationsError: true,
+          notificaitons: [],
+        };
+      case globalTypes.ADD_NEW_NOTIFICATION:
+        const allNotifications = [...state.notificaitons, action.data]
+        return {
+          ...state,
+          getAllNotificationsLoading: false,
+          getAllNotificationsSuccess: false,
+          getAllNotificationsError: true,
+          notificaitons: allNotifications,
+        };
+      case globalTypes.UPDATE_NOTIFICATION:
+        const updatedNotifications = state.notificaitons.map(eachNotificaiton=> {
+          if (eachNotificaiton.id === action.data.id) {
+            return action.data
+          }
+          return eachNotificaiton
+        })
+        return {
+          ...state,
+          getAllNotificationsLoading: false,
+          getAllNotificationsSuccess: false,
+          getAllNotificationsError: true,
+          notificaitons: updatedNotifications,
         };
     }
   });

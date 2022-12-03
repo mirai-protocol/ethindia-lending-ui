@@ -45,7 +45,7 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
   useEffect(() => {
     const getMarkets = async () => {
       getMarketsLoad();
-      const markets = await getMarketsData(account, chainId);
+      const markets = await getMarketsData(account, chainId || 80001);
       if (markets.success && markets.data.markets) {
         getMarketsSuccess(markets.data.markets);
         setMarketsStats({
