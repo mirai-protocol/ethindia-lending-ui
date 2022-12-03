@@ -28,69 +28,54 @@ export const getMarketsData = async (account) => {
       };
       marketsUserData = await eular.contracts.eulerGeneralView.doQuery(query);
     }
-
-    let totalSupply = new BigNumber('0');
-    let totalBorrowed = new BigNumber('0');
-    let totalUserSupplied = new BigNumber('0');
-    let totalUserBorrowed = new BigNumber('0');
-    const marketsData = await Promise.all(
-      data.markets.map(async (eachMarket) => {
-        let borrowerApy = '0';
-        let supplierApy = '0';
-        let userData = {
-          isEntered: false,
-          totalCollatral: '0',
-          totalLiability: '0',
-          tokenBal: '0',
-          eulerAllowance: '0',
-        };
-        if (account && marketsUserData) {
-          const isEntered = marketsUserData.enteredMarkets.find(
-            (market) => market.toLowerCase() === eachMarket.inputToken.id.toLowerCase()
-          );
-          if (isEntered) {
-            let liabilityValue = new BigNumber('0');
-            let collateralValue = new BigNumber('0');
-            let tokenBal = new BigNumber('0');
-            let eulerAllowance = new BigNumber('0');
-            let eTokenBalanceUnderlying = new BigNumber('0');
-            let dTokenBalance = new BigNumber('0');
-            marketsUserData.markets.forEach((market) => {
-              if (market[0] === isEntered) {
-                dTokenBalance = new BigNumber(market.dTokenBalance.toString()).dividedBy(
-                  10 ** parseFloat(market.decimals)
-                );
-                eTokenBalanceUnderlying = new BigNumber(market.eTokenBalanceUnderlying.toString()).dividedBy(
-                  10 ** parseFloat(market.decimals)
-                );
-                eulerAllowance = new BigNumber(market.eulerAllowance.toString()).dividedBy(
-                  10 ** parseFloat(market.decimals)
-                );
-                tokenBal = new BigNumber(market.underlyingBalance.toString()).dividedBy(
-                  10 ** parseFloat(market.decimals)
-                );
-                liabilityValue = liabilityValue
-                  .plus(market.liquidityStatus.liabilityValue.toString())
-                  .dividedBy(10 ** parseFloat(market.decimals));
-                collateralValue = collateralValue
-                  .plus(market.liquidityStatus.collateralValue.toString())
-                  .dividedBy(10 ** parseFloat(market.decimals));
-              }
-            });
-            totalUserSupplied = totalUserSupplied
-              .plus(eTokenBalanceUnderlying)
-              .multipliedBy(eachMarket.inputTokenPriceUSD);
-            totalUserBorrowed = totalUserBorrowed.plus(dTokenBalance).multipliedBy(eachMarket.inputTokenPriceUSD);
-            userData = {
-              ...userData,
-              isEntered: true,
-              dTokenBalance: dTokenBalance.toString(),
-              eTokenBalanceUnderlying: eTokenBalanceUnderlying.toString(),
-              eulerAllowance: eulerAllowance.toString(),
-              tokenBal: tokenBal.toString(),
-              totalCollatral: collateralValue.toString(),
-              totalLiability: liabilityValue.toString(),
-            };
+    let totalSupply = new BigNumber('0')
+    let totalBorrowed = new BigNumber('0')
+    let totalUserSupplied = new BigNumber('0')
+    let totalUserBorrowed = new BigNumber('0')
+    let totalUserLiadbility = new BigNumber('0')
+    let totalUserCollateral = new BigNumber('0')
+    const marketsData = await Promise.all(data.markets.map(async eachMarket => {
+      let borrowerApy = '0';
+      let supplierApy = '0';
+      let userData = {
+        isEntered: false,
+        totalCollatral: '0',
+        totalLiability: '0',
+        tokenBal: '0',
+        eulerAllowance: '0',
+      }
+      if (account && marketsUserData) {
+        const isEntered = marketsUserData.enteredMarkets.find(market => market.toLowerCase() === eachMarket.inputToken.id.toLowerCase())
+        if (isEntered) {
+          let liabilityValue = new BigNumber('0')
+          let collateralValue = new BigNumber('0')
+          let tokenBal = new BigNumber('0')
+          let eulerAllowance = new BigNumber('0')
+          let eTokenBalanceUnderlying = new BigNumber('0')
+          let dTokenBalance = new BigNumber('0')
+          marketsUserData.markets.forEach(market => {
+            if (market[0] === isEntered) {
+              dTokenBalance = new BigNumber(market.dTokenBalance.toString()).dividedBy(10 ** parseFloat(market.decimals))
+              eTokenBalanceUnderlying = new BigNumber(market.eTokenBalanceUnderlying.toString()).dividedBy(10 ** parseFloat(market.decimals))
+              eulerAllowance = new BigNumber(market.eulerAllowance.toString()).dividedBy(10 ** parseFloat(market.decimals))
+              tokenBal = new BigNumber(market.underlyingBalance.toString()).dividedBy(10 ** parseFloat(market.decimals))
+              liabilityValue = liabilityValue.plus(market.liquidityStatus.liabilityValue.toString()).dividedBy(10 ** 18)
+              collateralValue = collateralValue.plus(market.liquidityStatus.collateralValue.toString()).dividedBy(10 ** 18)
+            }
+          })
+          totalUserSupplied = totalUserSupplied.plus(eTokenBalanceUnderlying).multipliedBy(eachMarket.inputTokenPriceUSD)
+          totalUserBorrowed = totalUserBorrowed.plus(dTokenBalance).multipliedBy(eachMarket.inputTokenPriceUSD)
+          totalUserLiadbility = totalUserLiadbility.plus(liabilityValue)
+          totalUserCollateral = totalUserCollateral.plus(collateralValue)
+          userData = {
+            ...userData,
+            isEntered: true,
+            dTokenBalance: dTokenBalance.toString(),
+            eTokenBalanceUnderlying: eTokenBalanceUnderlying.toString(),
+            eulerAllowance: eulerAllowance.toString(),
+            tokenBal: tokenBal.toString(),
+            totalCollatral: collateralValue.toString(),
+            totalLiability: liabilityValue.toString()
           }
         }
         totalSupply = totalSupply.plus(eachMarket.totalValueLockedUSD);
@@ -118,9 +103,10 @@ export const getMarketsData = async (account) => {
           supplierApy,
           userData,
         };
-        return eachMarket;
-      })
-    );
+
+      }
+      return eachMarket;
+    }));
     if (marketsData) {
       return {
         success: true,
@@ -130,8 +116,10 @@ export const getMarketsData = async (account) => {
           totalBorrowed,
           totalUserSupplied,
           totalUserBorrowed,
-        },
-      };
+          totalUserLiadbility,
+          totalUserCollateral
+        }
+      }
     }
     return {
       success: false,
@@ -141,8 +129,11 @@ export const getMarketsData = async (account) => {
         totalBorrowed,
         totalUserSupplied,
         totalUserBorrowed,
-      },
-    };
+        totalUserLiadbility,
+        totalUserCollateral
+      }
+    }
+
   }
   return {
     success: false,

@@ -5,12 +5,12 @@ import ThemeProvider from './theme';
 // components
 import ScrollToTop from './components/scroll-to-top';
 import { StyledChart } from './components/chart';
-import useConnect from './hooks/useConnect';
+// import useConnect from './hooks/useConnect';
 
 // ----------------------------------------------------------------------
 
 export default function App() {
-  useConnect();
+  // useConnect()
   return (
     <ThemeProvider>
       <ScrollToTop />

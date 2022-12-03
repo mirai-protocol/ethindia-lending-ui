@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useWeb3React } from '@web3-react/core';
+import React, { useState, useEffect } from 'react'
 import { Box, Divider, Typography, Stack, MenuItem, Button, Popover } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { SUPPORTED_NETWORKS, NATIVE_TOKENS } from '../../../config';
+import useWeb3React from '../../../hooks/useWeb3React';
 
 export default function NetworkToggle() {
   const [open, setOpen] = useState(null);
@@ -54,6 +54,14 @@ export default function NetworkToggle() {
   if (chainId) {
     network = SUPPORTED_NETWORKS.find((network) => network.chainId === chainId.toString());
   }
+  useEffect(() => {
+    console.warn = () => null;
+    if (window && window.ethereum) {
+      window.ethereum.on("chainChanged", async () => {
+        window.location.reload();
+      });
+    }
+  },[])
   return (
     <div>
       {network ? (

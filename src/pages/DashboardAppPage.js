@@ -94,10 +94,17 @@ function DashboardAppPage({
             dailyMarketData = {
               date: [...dailyMarketData.date, new Date(parseFloat(marketData.timestamp) * 1000).toLocaleDateString()],
               totalValueLocked: [...dailyMarketData.totalValueLocked, marketData.totalDepositBalanceUSD],
-              totalValueBorrowed: [...dailyMarketData.totalValueBorrowed, marketData.totalBorrowBalanceUSD],
-            };
-          });
-          getDailyProtocolDataSuccess(dailyMarketData);
+              totalValueBorrowed: [...dailyMarketData.totalValueBorrowed, marketData.totalBorrowBalanceUSD]
+            }
+          })
+          if (dailyMarketData.date.length > 0) {
+            dailyMarketData = {
+              date: dailyMarketData.date.reverse(),
+              totalValueLocked: dailyMarketData.totalValueLocked.reverse(),
+              totalValueBorrowed: dailyMarketData.totalValueBorrowed.reverse(),
+            }
+          }
+          getDailyProtocolDataSuccess(dailyMarketData)
         }
         if (error) {
           getDailyProtocolDataError();
@@ -106,21 +113,25 @@ function DashboardAppPage({
         console.error({ error });
         getDailyProtocolDataError();
       }
-    };
-    getDailyMarketData();
-    getTopMarkets();
-  }, [client, markets.totalValueLocked]);
+    }
+    getDailyMarketData()
+    getTopMarkets()
+  }, [client, markets.totalValueLocked])
+  
   return (
     <>
       <Helmet>
         <title> Dashboard | Mirai ProtocolMinimal UI </title>
       </Helmet>
-
       <Container maxWidth="xl">
-        <Typography variant="h4" sx={{ mb: 5 }}>
-          Hi, Welcome To Lending Protocol
-        </Typography>
-
+        <div style={{ marginBottom: '25px' }}>
+          <Typography variant="h3">
+            Welcome to Mirai
+          </Typography>
+          <Typography variant="subtitle">
+            first ever truly cross-chain protocol
+          </Typography>
+        </div>
         <Grid container spacing={3} justifyContent="center">
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary
