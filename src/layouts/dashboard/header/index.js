@@ -11,6 +11,7 @@ import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
 import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
+import NetworkToggle from './NetworkToggle';
 
 // ----------------------------------------------------------------------
 
@@ -70,6 +71,7 @@ export default function Header({ onOpenNav }) {
         >
           {false && <LanguagePopover />}
           {false && <NotificationsPopover />}
+          <NetworkToggle />
           <AccountPopover />
         </Stack>
       </StyledToolbar>
