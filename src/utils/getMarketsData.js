@@ -19,7 +19,7 @@ export const getMarketsData = async (account, chainId) => {
     },
   });
   if (data && data.markets) {
-    const euler = getEulerInstance();
+    const euler = getEulerInstance(chainId);
     let marketsUserData = null;
     let mappedAccountAddress = '';
 
@@ -27,7 +27,6 @@ export const getMarketsData = async (account, chainId) => {
       const eulerMaticInstance = getMaticReadOnlyEulerInstance();
       await eulerMaticInstance.addContract('targetContract', targetAbi, TARGET_ADDRESS);
       mappedAccountAddress = await eulerMaticInstance.contracts.targetContract.scw(account);
-      console.log('map:', mappedAccountAddress);
     }
 
     const accountAddress = chainId !== 80001 ? mappedAccountAddress : account;
