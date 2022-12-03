@@ -3,7 +3,7 @@ import { getApollo } from '../apollo/index';
 import { getMarkets } from '../apollo/queries';
 import { TARGET_ADDRESS, TOKEN_IMAGES } from '../config';
 import targetAbi from '../config/abis/target.json';
-import getEulerInstance, { getMaticReadOnlyEulerInstance } from './getEulerInstance';
+import { getMaticReadOnlyEulerInstance } from './getEulerInstance';
 
 BigNumber.config({
   EXPONENTIAL_AT: 1000,
@@ -19,26 +19,33 @@ export const getMarketsData = async (account, chainId) => {
     },
   });
   if (data && data.markets) {
-    const euler = getEulerInstance(chainId);
+    const euler = getMaticReadOnlyEulerInstance(chainId);
     let marketsUserData = null;
+    let mappedMarketsUserData = null;
     let mappedAccountAddress = '';
 
-    if (chainId !== 80001) {
-      const eulerMaticInstance = getMaticReadOnlyEulerInstance();
-      await eulerMaticInstance.addContract('targetContract', targetAbi, TARGET_ADDRESS);
-      mappedAccountAddress = await eulerMaticInstance.contracts.targetContract.scw(account);
-    }
-
-    const accountAddress = chainId !== 80001 ? mappedAccountAddress : account;
+    const eulerMaticInstance = getMaticReadOnlyEulerInstance();
+    await eulerMaticInstance.addContract('targetContract', targetAbi, TARGET_ADDRESS);
+    mappedAccountAddress = await eulerMaticInstance.contracts.targetContract.scw(account);
 
     if (account) {
       const query = {
-        eulerContract: getEulerInstance().addresses.euler,
-        account: accountAddress,
+        eulerContract: getMaticReadOnlyEulerInstance().addresses.euler,
+        account,
         markets: [],
       };
       marketsUserData = await euler.contracts.eulerGeneralView.doQuery(query);
     }
+
+    if (mappedAccountAddress) {
+      const query = {
+        eulerContract: getMaticReadOnlyEulerInstance().addresses.euler,
+        account: mappedAccountAddress,
+        markets: [],
+      };
+      mappedMarketsUserData = await euler.contracts.eulerGeneralView.doQuery(query);
+    }
+
     let totalSupply = new BigNumber('0');
     let totalBorrowed = new BigNumber('0');
     let totalUserSupplied = new BigNumber('0');
