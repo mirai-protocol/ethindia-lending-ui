@@ -156,3 +156,20 @@ export const NATIVE_TOKENS = {
     decimals: '18',
   },
 };
+export const nonMaticTokenAddressMapping = {
+  usdc: {
+    5: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
+  },
+  weth: {
+    5: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+  },
+  dai: {
+    5: '0xdc31ee1784292379fbb2964b3b9c4124d8f89c60',
+  },
+  bat: {
+    5: '0xdc31ee1784292379fbb2964b3b9c4124d8f89c60', // dai address pasted
+  },
+  wmatic: {
+    5: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+  },
+};
