@@ -60,7 +60,6 @@
     "apexcharts": "^3.36.0",
     "bignumber.js": "^9.1.0",
     "change-case": "^4.1.2",
-    "cryption-uikit-v2": "^0.1.43",
     "date-fns": "^2.29.3",
     "ethers": "^5.7.2",
     "graphql": "^16.6.0",
