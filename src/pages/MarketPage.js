@@ -777,7 +777,7 @@ function MarketPage({ markets, updateMarket }) {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
-                    <Row market={row} key={row.id} account={account} chainID={chainId} updateMarket={updateMarket} />
+                    <Row market={row} key={row.id} account={account} chainId={chainId} updateMarket={updateMarket} />
                   ))}
                   {emptyRows > 0 && (
                     <TableRow style={{ height: 53 * emptyRows }}>
