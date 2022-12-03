@@ -152,7 +152,7 @@ function Row(props) {
   const handleOpenMarket = async () => {
     try {
       setOpenMarketProcessing(true);
-      const eularInstance = getEulerInstance();
+      const eularInstance = getEulerInstance(chainId);
       const tx = await eularInstance.contracts.markets.enterMarket('0', inputToken.id);
       await tx.wait();
       setIsEntered(true);
@@ -171,7 +171,7 @@ function Row(props) {
   const handleApprove = async () => {
     try {
       setApproveLoading(true);
-      const eulerInstance = getEulerInstance();
+      const eulerInstance = getEulerInstance(chainId);
       await eulerInstance.addContract(inputToken.symbol.toLowerCase(), erc20Abi, inputToken.id);
       const approvalAmount = ethers.BigNumber.from(MaxUint256.toString());
 
@@ -207,7 +207,7 @@ function Row(props) {
     }
   };
   const updateUserStats = async () => {
-    const eularInstance = getEulerInstance();
+    const eularInstance = getEulerInstance(chainId);
     const query = {
       eulerContract: eularTestnetConfig.euler,
       account,
@@ -262,7 +262,7 @@ function Row(props) {
   };
   const handleDeposit = async () => {
     try {
-      const eulerInstance = getEulerInstance();
+      const eulerInstance = getEulerInstance(chainId);
       setDepositLoading(true);
       const approvalAmount = new BigNumber(amounts.depositAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
@@ -292,7 +292,7 @@ function Row(props) {
   const handleBorrow = async () => {
     try {
       setBorrowLoading(true);
-      const eulerInstance = getEulerInstance();
+      const eulerInstance = getEulerInstance(chainId);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
         .toJSON();
@@ -320,7 +320,7 @@ function Row(props) {
   const handleWithdraw = async () => {
     try {
       setWithdrawLoading(true);
-      const eulerInstance = getEulerInstance();
+      const eulerInstance = getEulerInstance(chainId);
       const approvalAmount = new BigNumber(amounts.depositAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
         .toJSON();
@@ -350,7 +350,7 @@ function Row(props) {
   const handleRepay = async () => {
     try {
       setRepayLoading(true);
-      const eulerInstance = getEulerInstance();
+      const eulerInstance = getEulerInstance(chainId);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
         .toJSON();
