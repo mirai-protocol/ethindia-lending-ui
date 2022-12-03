@@ -1,56 +1,53 @@
 import { useState } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
+import { useWeb3Modal } from "@web3modal/react";
 import WalletIcon from '@mui/icons-material/Wallet';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
-import { Box, Divider, Typography, Stack, MenuItem, Avatar, Button, IconButton, Popover } from '@mui/material';
+import { useDisconnect } from 'wagmi'
+import Identicon from 'react-identicons';
+// import { Web3Modal, Web3Button } from "@web3modal/react";
+// import {
+//   EthereumClient,
+// } from "@web3modal/ethereum";
+import { Box, Divider, Typography, MenuItem, Avatar, Button, IconButton, Popover } from '@mui/material';
+import useWeb3React from '../../../hooks/useWeb3React';
 // mocks_
-import accountData from '../../../_mock/account';
-import { SUPPORTED_WALLETS, NETWORKS } from '../../../config';
-
+import { NETWORKS } from '../../../config'
+// import { wagmiClient, chains } from '../../../utils/wagmiClient';
 // ----------------------------------------------------------------------
 
-const MENU_OPTIONS = [
-  {
-    label: 'Home',
-    icon: 'eva:home-fill',
-  },
-  {
-    label: 'Profile',
-    icon: 'eva:person-fill',
-  },
-  {
-    label: 'Settings',
-    icon: 'eva:settings-2-fill',
-  },
-];
+// const MENU_OPTIONS = [
+//   {
+//     label: 'Home',
+//     icon: 'eva:home-fill',
+//   },
+//   {
+//     label: 'Profile',
+//     icon: 'eva:person-fill',
+//   },
+//   {
+//     label: 'Settings',
+//     icon: 'eva:settings-2-fill',
+//   },
+// ];
 
 // ----------------------------------------------------------------------
 
 export default function AccountPopover() {
-  const [open, setOpen] = useState(null);
-  const { account, chainId, activate } = useWeb3React();
+  const [openPopver, setOpen] = useState(null);
+  const { open } = useWeb3Modal();
+  const {
+    account,
+    isConnecting,
+    chainId,
+  } = useWeb3React();
+  const { disconnect } = useDisconnect()
+  // const ethereumClient = new EthereumClient(wagmiClient(), chains);
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
   };
-
   const handleClose = () => {
     setOpen(null);
-  };
-  const connectWallet = async (connector) => {
-    Object.keys(SUPPORTED_WALLETS).map((key) => {
-      if (connector === SUPPORTED_WALLETS[key].connector) {
-        return SUPPORTED_WALLETS[key].name;
-      }
-      return true;
-    });
-    activate(connector, undefined, true).catch((error) => {
-      if (error instanceof UnsupportedChainIdError) {
-        activate(connector); // a little janky...can't use setError because the connector isn't set
-      } else {
-        console.error('errir', error);
-      }
-    });
   };
   return (
     <>
@@ -59,7 +56,7 @@ export default function AccountPopover() {
           onClick={handleOpen}
           sx={{
             p: 0,
-            ...(open && {
+            ...(openPopver && {
               '&:before': {
                 zIndex: 1,
                 content: "''",
@@ -72,21 +69,27 @@ export default function AccountPopover() {
             }),
           }}
         >
-          <Avatar src={accountData.photoURL} alt="photoURL" />
+          <Avatar alt="photoURL">
+            <Identicon
+              palette={["rgba(212, 55, 49)", "#1976d2", "#9c27b0", "#ed6c02", "#0288d1","#2e7d32"]}
+              string={account}
+              size="40"
+            />
+          </Avatar>
         </IconButton>
       ) : (
         <Button
-          onClick={() => connectWallet(SUPPORTED_WALLETS.METAMASK.connector)}
+          onClick={() => open()}
           variant="contained"
+          disabled={isConnecting}
           endIcon={<WalletIcon />}
         >
-          Connect Wallet
+          {isConnecting ? 'Connecting...' : 'Connect Wallet'}
         </Button>
       )}
-
       <Popover
-        open={Boolean(open)}
-        anchorEl={open}
+        open={Boolean(openPopver)}
+        anchorEl={openPopver}
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -114,19 +117,23 @@ export default function AccountPopover() {
           </Box>
         )}
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        {/* <Divider sx={{ borderStyle: 'dashed' }} /> */}
 
-        <Stack sx={{ p: 1 }}>
+        {/* <Stack sx={{ p: 1 }}>
           {MENU_OPTIONS.map((option) => (
             <MenuItem key={option.label} onClick={handleClose}>
               {option.label}
             </MenuItem>
           ))}
-        </Stack>
+        </Stack> */}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <MenuItem onClick={handleClose} sx={{ m: 1 }}>
+        <MenuItem onClick={() => {
+          disconnect()
+          handleClose()
+        }
+        } sx={{ m: 1 }}>
           Logout
         </MenuItem>
       </Popover>

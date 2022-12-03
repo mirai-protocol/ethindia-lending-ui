@@ -1,19 +1,17 @@
 import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useWeb3React } from '@web3-react/core';
 import { compose } from 'redux';
 import { useLocation } from 'react-router-dom';
 // @mui
-import { styled, alpha } from '@mui/material/styles';
-import { Box, Link, Drawer, Typography, Avatar } from '@mui/material';
+import { Box, Drawer } from '@mui/material';
 // mock
-import { NETWORKS } from '../../../config';
 // hooks
 import useResponsive from '../../../hooks/useResponsive';
 // components
 import logo from '../../../images/mirainameBg.png';
 import Scrollbar from '../../../components/scrollbar';
+import useWeb3React from '../../../hooks/useWeb3React';
 import NavSection from '../../../components/nav-section';
 //
 import navConfig from './config';
@@ -22,14 +20,6 @@ import { globalCreators } from '../../../state/markets/index';
 // ----------------------------------------------------------------------
 
 const NAV_WIDTH = 280;
-
-const StyledAccount = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(2, 2.5),
-  borderRadius: Number(theme.shape.borderRadius) * 1.5,
-  backgroundColor: alpha(theme.palette.grey[500], 0.12),
-}));
 
 // ----------------------------------------------------------------------
 
@@ -44,7 +34,9 @@ Nav.propTypes = {
 
 function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarketsError, setMarketsStats }) {
   const { pathname } = useLocation();
-  const { account, chainId } = useWeb3React();
+  const {
+    account,
+  } = useWeb3React();
   const isDesktop = useResponsive('up', 'lg');
   useEffect(() => {
     if (openNav) {
@@ -63,7 +55,10 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
           totalValueBorrowed: markets.data.totalBorrowed.toString(),
           totalUserBorrowed: markets.data.totalUserBorrowed.toString(),
           totalUserSupplied: markets.data.totalUserSupplied.toString(),
-        });
+          totalUserCollateral: markets.data.totalUserCollateral.toString(),
+          totalUserLiadbility: markets.data.totalUserLiadbility.toString()
+        })
+
       }
       if (markets.error) {
         getMarketsError();
@@ -80,26 +75,8 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
         '& .simplebar-content': { height: 1, display: 'flex', flexDirection: 'column' },
       }}
     >
-      <Box sx={{ px: 2.5, py: 3, display: 'inline-flex' }}>
-        <img src={logo} alt="Mirai" width="150px" />
-      </Box>
-
-      <Box sx={{ mb: 5, mx: 2.5 }}>
-        <Link underline="none">
-          <StyledAccount>
-            <Avatar src="https://s2.coinmarketcap.com/static/img/coins/64x64/9747.png" alt="photoURL" />
-
-            <Box sx={{ ml: 2 }}>
-              <Typography variant="subtitle1" sx={{ color: 'text.primary' }}>
-                {account ? `${account.slice(0, 4)}....${account.slice(account.length - 4)}` : 'Mirai Protocol'}
-              </Typography>
-
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {NETWORKS[chainId] && NETWORKS[chainId].name ? NETWORKS[chainId].name : 'Wrong Network'}
-              </Typography>
-            </Box>
-          </StyledAccount>
-        </Link>
+      <Box sx={{ px: 2.5, py: 3, display: 'flex', justifyContent: 'center' }}>
+        <img src={logo} alt="Mirai" width="170px" />
       </Box>
 
       <NavSection data={navConfig} />

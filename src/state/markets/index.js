@@ -26,6 +26,8 @@ export const initialState = {
   totalValueBorrowed: '0',
   totalUserSupplied: '0',
   totalUserBorrowed: '0',
+  totalUserLiadbility: '0',
+  totalUserCollateral: '0',
   getTopMarketsLoading: false,
   getTopMarketsSuccess: false,
   getTopMarketsError: false,
@@ -129,6 +131,8 @@ const marketsReducer = (state = initialState, action) =>
           totalValueBorrowed: action.data.totalValueBorrowed,
           totalUserSupplied: action.data.totalUserSupplied,
           totalUserBorrowed: action.data.totalUserBorrowed,
+          totalUserCollateral: action.data.totalUserCollateral,
+          totalUserLiadbility: action.data.totalUserLiadbility,
         };
       case globalTypes.UPDATE_MARKET:
         const marketsData = state.markets.map((market) => {

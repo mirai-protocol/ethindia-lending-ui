@@ -1,7 +1,8 @@
 /* eslint-disable react/prop-types */
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
-import { useWeb3React } from '@web3-react/core';
+import {ethers} from 'ethers';
+import { MaxUint256 } from "@ethersproject/constants";
 import { connect } from 'react-redux';
 import BigNumber from 'bignumber.js';
 import { compose } from 'redux';
@@ -52,6 +53,7 @@ import { globalCreators } from '../state/markets/index';
 import eularTestnetConfig from '../config/addresses-polygontestnet.json';
 import getEularInstance from '../utils/getEularInstance';
 import erc20Abi from '../config/abis/erc20.json';
+import useWeb3React from '../hooks/useWeb3React';
 
 BigNumber.config({
   EXPONENTIAL_AT: 1000,
@@ -86,7 +88,7 @@ const TABLE_HEAD = [
   { id: 'borrowerApy', label: 'Borrow APY', alignRight: false },
   { id: 'totalDepositBalanceUSD', label: 'Total Supply', alignRight: false },
   { id: 'totalBorrowBalanceUSD', label: 'Total Borrow', alignRight: false },
-  { id: 'available', label: 'Available', alignRight: false },
+  { id: 'available', label: 'Current TVL', alignRight: false },
 ];
 
 // ----------------------------------------------------------------------
@@ -135,6 +137,7 @@ function Row(props) {
   const [open, setOpen] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
   const [borrowLoading, setBorrowLoading] = useState(false);
+  const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [repayLoading, setRepayLoading] = useState(false);
   const [depositLoading, setDepositLoading] = useState(false);
   const [amounts, setamounts] = useState({
@@ -142,14 +145,15 @@ function Row(props) {
     withdrawAmount: '0',
   });
   const [openMarketProcessing, setOpenMarketProcessing] = useState(false);
-  const [isEntered, setIsEntered] = useState(userData.isEntered);
+  const [isEntered, setIsEntered] = useState(userData ? userData.isEntered: false);
   const handleOpenMarket = async () => {
     try {
-      setOpenMarketProcessing(false);
-      const eularInstance = getEularInstance();
-      await eularInstance.contracts.markets.enterMarket('0', inputToken.id);
-      setIsEntered(true);
-      setOpenMarketProcessing(true);
+      setOpenMarketProcessing(true)
+      const eularInstance = getEularInstance()
+      const tx = await eularInstance.contracts.markets.enterMarket('0', inputToken.id);
+      await tx.wait();
+      setIsEntered(true)
+      setOpenMarketProcessing(false)
     } catch (error) {
       setOpenMarketProcessing(false);
       console.error(error);
@@ -166,9 +170,7 @@ function Row(props) {
       setApproveLoading(true);
       const eularInstance = getEularInstance();
       await eularInstance.addContract(inputToken.symbol.toLowerCase(), erc20Abi, inputToken.id);
-      const approvalAmount = new BigNumber(amounts.depositAmount)
-        .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
-        .toJSON();
+      const approvalAmount = ethers.BigNumber.from(MaxUint256.toString())
       const approvalTxn = await eularInstance.contracts[inputToken.symbol.toLowerCase()].approve(
         eularInstance.addresses.euler,
         approvalAmount
@@ -269,8 +271,8 @@ function Row(props) {
   };
   const handleBorrow = async () => {
     try {
-      setBorrowLoading(true);
-      const eularInstance = getEularInstance();
+      setBorrowLoading(true)
+      const eularInstance = getEularInstance()
       const dToken = await eularInstance.dTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
@@ -283,7 +285,24 @@ function Row(props) {
       setBorrowLoading(false);
       console.error(error);
     }
-  };
+  }
+  const handleWithdraw = async () => {
+    try {
+      setWithdrawLoading(true)
+      const eularInstance = getEularInstance()
+      const eToken = await eularInstance.eTokenOf(inputToken.id);
+      const approvalAmount = new BigNumber(amounts.depositAmount)
+        .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
+        .toJSON()
+      const tx = await eToken.withdraw('0', approvalAmount)
+      await tx.wait();
+      setWithdrawLoading(false)
+      updateUserStats()
+    } catch (error) {
+      setWithdrawLoading(false)
+      console.error(error)
+    }
+  }
   const handleRepay = async () => {
     try {
       setRepayLoading(true);
@@ -302,8 +321,10 @@ function Row(props) {
     }
   };
   useEffect(() => {
-    setIsEntered(userData.isEntered);
-  }, [userData.isEntered]);
+    if (userData) {
+      setIsEntered(userData.isEntered);
+    }
+  }, [userData]);
 
   return (
     <>
@@ -352,16 +373,18 @@ function Row(props) {
           </span>
         </TableCell>
         <TableCell align="right">
-          <span style={{ fontWeight: '700', fontSize: '16px' }}>{fShortenNumber(totalDepositBalanceUSD)}</span>
+          <span style={{ fontWeight: '700', fontSize: '16px' }}>
+            $ {fShortenNumber(totalDepositBalanceUSD)}
+          </span>
         </TableCell>
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px', color: '#ffa000' }}>
-            {fShortenNumber(totalBorrowBalanceUSD)}
+            $ {fShortenNumber(totalBorrowBalanceUSD)}
           </span>
         </TableCell>
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px', color: '#43a047' }}>
-            {available > 0 ? fShortenNumber(available) : 0}
+            $ {available > 0 ? fShortenNumber(available) : 0}
           </span>
         </TableCell>
       </TableRow>
@@ -426,39 +449,47 @@ function Row(props) {
                         </InputAdornment>
                       }
                     />
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      spacing={3}
-                      sx={{ marginTop: '20px' }}
-                    >
-                      <Button
-                        variant="outlined"
+                    {parseFloat(userData.eulerAllowance) > 0 ?
+                      <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={3} sx={{ marginTop: '20px' }}>
+                        <Button
+                          variant="outlined"
+                          fullWidth
+                          onClick={handleWithdraw}
+                          disabled={withdrawLoading || parseFloat(amounts.depositAmount) <= 0 || parseFloat(userData.eulerAllowance) <= parseFloat(amounts.depositAmount)}
+                          endIcon={<AddCircleIcon />}
+                        >
+                          {withdrawLoading ? 'Processing...' : `Withdraw ${inputToken.symbol}`}
+                        </Button>
+                        {parseFloat(userData.eulerAllowance) > parseFloat(amounts.depositAmount) ?
+                          <Button variant="contained"
+                            onClick={handleDeposit}
+                            fullWidth
+                            disabled={depositLoading || parseFloat(amounts.depositAmount) <= 0}
+                          >
+                            {depositLoading ? 'Processing...' : 'Deposit'}
+                          </Button>
+                          :
+                          <Button variant="contained"
+                            onClick={handleApprove}
+                            fullWidth
+                            disabled={approveLoading || parseFloat(amounts.depositAmount) <= 0}
+                          >
+                            {approveLoading ? 'Processing...' : 'Approve'}
+                          </Button>
+                        }
+                      </Stack>
+                      :
+                      <Button variant="outlined"
                         onClick={handleApprove}
                         fullWidth
                         disabled={
                           approveLoading ||
-                          parseFloat(amounts.depositAmount) <= 0 ||
                           parseFloat(userData.eulerAllowance) > parseFloat(amounts.depositAmount)
                         }
                       >
                         {approveLoading ? 'Processing...' : 'Approve'}
                       </Button>
-                      <Button
-                        variant="contained"
-                        fullWidth
-                        onClick={handleDeposit}
-                        disabled={
-                          depositLoading ||
-                          parseFloat(amounts.depositAmount) <= 0 ||
-                          parseFloat(userData.eulerAllowance) <= parseFloat(amounts.depositAmount)
-                        }
-                        endIcon={<AddCircleIcon />}
-                      >
-                        {depositLoading ? 'Processing...' : `Deposit ${inputToken.symbol}`}
-                      </Button>
-                    </Stack>
+                    }
                   </Card>
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
@@ -625,13 +656,10 @@ function MarketPage({ markets, updateMarket }) {
         <div style={{ marginBottom: '30px' }}>
           <Grid container spacing={3} justifyContent="center">
             <Grid item xs={12} sm={6} md={3}>
-              <AppWidgetSummary
-                title="Total Supplied Amount"
-                prefix="$ "
-                total={parseFloat(markets.totalUserSupplied)}
-                color="success"
-                icon={<img src={walletyIcon} width="40px" alt="Markets" />}
-              />
+              <AppWidgetSummary title="Total Supplied Amount" prefix="$ " total={parseFloat(markets.totalUserSupplied)} color="info" icon={<img src={walletyIcon} width="40px" alt="Markets" />} />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <AppWidgetSummary title="Total Collateral Avaialble" prefix="$ " total={parseFloat(markets.totalUserCollateral)} color="success" icon={<img src={walletyIcon} width="40px" alt="Markets" />} />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
               <AppWidgetSummary
@@ -641,6 +669,9 @@ function MarketPage({ markets, updateMarket }) {
                 color="error"
                 icon={<img src={liabilityIcon} width="40px" alt="Markets" />}
               />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <AppWidgetSummary title="Availabe Amount" prefix="$ " total={parseFloat(markets.totalUserCollateral) - parseFloat(markets.totalUserBorrowed)} color="success" icon={<img src={liabilityIcon} width="40px" alt="Markets" />} />
             </Grid>
           </Grid>
         </div>
