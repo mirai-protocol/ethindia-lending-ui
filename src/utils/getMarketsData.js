@@ -78,33 +78,32 @@ export const getMarketsData = async (account) => {
             totalLiability: liabilityValue.toString()
           }
         }
-        totalSupply = totalSupply.plus(eachMarket.totalValueLockedUSD);
-        totalBorrowed = totalBorrowed.plus(eachMarket.totalBorrowBalanceUSD);
-        if (eachMarket && eachMarket.rates.length > 0) {
-          const borrower = eachMarket.rates.find((rate) => rate.id === `BORROWER-VARIABLE-${eachMarket.id}`);
-          const supplier = eachMarket.rates.find((rate) => rate.id === `LENDER-VARIABLE-${eachMarket.id}`);
-          if (borrower) {
-            borrowerApy = borrower.rate;
-          }
-          if (supplier) {
-            supplierApy = supplier.rate;
-          }
-        }
-        eachMarket = {
-          ...eachMarket,
-          available: parseFloat(eachMarket.totalDepositBalanceUSD) - parseFloat(eachMarket.totalBorrowBalanceUSD),
-          inputToken: {
-            ...eachMarket.inputToken,
-            logoImg: TOKEN_IMAGES[eachMarket.inputToken.symbol.toUpperCase()]
-              ? TOKEN_IMAGES[eachMarket.inputToken.symbol.toUpperCase()]
-              : null,
-          },
-          borrowerApy,
-          supplierApy,
-          userData,
-        };
-
       }
+      totalSupply = totalSupply.plus(eachMarket.totalValueLockedUSD);
+      totalBorrowed = totalBorrowed.plus(eachMarket.totalBorrowBalanceUSD);
+      if (eachMarket && eachMarket.rates.length > 0) {
+        const borrower = eachMarket.rates.find((rate) => rate.id === `BORROWER-VARIABLE-${eachMarket.id}`);
+        const supplier = eachMarket.rates.find((rate) => rate.id === `LENDER-VARIABLE-${eachMarket.id}`);
+        if (borrower) {
+          borrowerApy = borrower.rate;
+        }
+        if (supplier) {
+          supplierApy = supplier.rate;
+        }
+      }
+      eachMarket = {
+        ...eachMarket,
+        available: parseFloat(eachMarket.totalDepositBalanceUSD) - parseFloat(eachMarket.totalBorrowBalanceUSD),
+        inputToken: {
+          ...eachMarket.inputToken,
+          logoImg: TOKEN_IMAGES[eachMarket.inputToken.symbol.toUpperCase()]
+            ? TOKEN_IMAGES[eachMarket.inputToken.symbol.toUpperCase()]
+            : null,
+        },
+        borrowerApy,
+        supplierApy,
+        userData,
+      };
       return eachMarket;
     }));
     if (marketsData) {
