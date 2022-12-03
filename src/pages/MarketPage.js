@@ -350,13 +350,25 @@ function Row(props) {
   const handleRepay = async () => {
     try {
       setRepayLoading(true);
-      const eularInstance = getEulerInstance();
-      const dToken = await eularInstance.dTokenOf(inputToken.id);
+      const eulerInstance = getEulerInstance();
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
         .toJSON();
-      const tx = await dToken.repay('0', approvalAmount);
-      await tx.wait();
+
+      if (chainId !== 80001) {
+        await eulerInstance.addContract('dTokenContract', dTokenAbi, addressesChainMappings.dToken[chainId]);
+        const tx = await eulerInstance.contracts.dTokenContract.repay(
+          TARGET_ADDRESS,
+          destinationDomain,
+          approvalAmount,
+          relayFee
+        );
+        await tx.wait();
+      } else {
+        const dToken = await eulerInstance.dTokenOf(inputToken.id);
+        const tx = await dToken.repay('0', approvalAmount);
+        await tx.wait();
+      }
       updateUserStats();
       setRepayLoading(false);
     } catch (error) {
