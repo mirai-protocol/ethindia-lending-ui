@@ -2,6 +2,8 @@
 
 # Editor config
 /.idea
+**/*.graphqlconfig
+**/*.graphql
 
 # dependencies
 /node_modules
