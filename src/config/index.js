@@ -159,18 +159,23 @@ export const NATIVE_TOKENS = {
 export const nonMaticTokenAddressMapping = {
   usdc: {
     5: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
+    80001: '0x2eddc4d432f0af7c05f9acf95ebe8b12bd9f83b6',
   },
   weth: {
     5: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+    80001: '0x38f501a3447ad5c009bd94704eaae099300d8b46',
   },
   dai: {
     5: '0xdc31ee1784292379fbb2964b3b9c4124d8f89c60',
+    80001: '0xd1efafdfc8d0fb032d0c5f4f0c8c7d2ce5094d54',
   },
   bat: {
     5: '0xdc31ee1784292379fbb2964b3b9c4124d8f89c60', // dai address pasted
+    80001: '0xd9b9f2c806ed85cf98560e4be61cf2d2fde58a8c',
   },
   wmatic: {
     5: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
+    80001: '0x9c3c9283d3e44854697cd22d3faa240cfb032889',
   },
 };
 
