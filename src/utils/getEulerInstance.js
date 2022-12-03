@@ -6,7 +6,8 @@ export const getMaticReadOnlyEulerInstance = () => {
   const provider = new ethers.providers.JsonRpcProvider(
     'https://polygon-mumbai.g.alchemy.com/v2/pf-Vjo8BFyrKeYQXjGplOPeDyUQ5FVIU'
   );
-  const maticEulerConfig = {
+  // const signer = provider.getSigner("0xDC7fB85Dd2670Cb3C3CCf2f22458299AB689d99c")
+  const eularConfig = {
     addresses: {
       euler: eularTestnetConfig.euler,
       exec: eularTestnetConfig.exec,
@@ -18,16 +19,14 @@ export const getMaticReadOnlyEulerInstance = () => {
       eulDistributor: eularTestnetConfig.eulDistributor,
       eulerGeneralView: eularTestnetConfig.eulerGeneralView,
       eul: eularTestnetConfig.eul.address,
-      swapHandler1Inch: eularTestnetConfig.swapHandler1Inch,
-      swapHandlerUniAutoRouter: eularTestnetConfig.swapHandlerUniAutoRouter,
-      eToken: eularTestnetConfig.eToken, // not req
-      dToken: eularTestnetConfig.dToken, // not req
-      pToken: eularTestnetConfig.pToken, // not req
+      eToken: eularTestnetConfig.eToken,
+      dToken: eularTestnetConfig.dToken,
+      pToken: eularTestnetConfig.pToken,
     },
     eul: eularTestnetConfig.eul,
     referenceAsset: '0x38f501A3447aD5c009Bd94704eaAe099300d8B46',
   };
-  return new Euler(provider, 80001, maticEulerConfig);
+  return new Euler(provider, 80001, eularConfig);
 };
 const getEulerInstance = (chainId) => {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -44,11 +43,9 @@ const getEulerInstance = (chainId) => {
       eulDistributor: eularTestnetConfig.eulDistributor,
       eulerGeneralView: eularTestnetConfig.eulerGeneralView,
       eul: eularTestnetConfig.eul.address,
-      swapHandler1Inch: eularTestnetConfig.swapHandler1Inch,
-      swapHandlerUniAutoRouter: eularTestnetConfig.swapHandlerUniAutoRouter,
-      eToken: eularTestnetConfig.eToken, // not req
-      dToken: eularTestnetConfig.dToken, // not req
-      pToken: eularTestnetConfig.pToken, // not req
+      eToken: eularTestnetConfig.eToken,
+      dToken: eularTestnetConfig.dToken,
+      pToken: eularTestnetConfig.pToken,
     },
     eul: eularTestnetConfig.eul,
     referenceAsset: '0x38f501A3447aD5c009Bd94704eaAe099300d8B46',

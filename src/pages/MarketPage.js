@@ -51,7 +51,7 @@ import liabilityIcon from '../images/liability.png';
 import walletyIcon from '../images/wallet.png';
 import { globalCreators } from '../state/markets/index';
 import eularTestnetConfig from '../config/addresses-polygontestnet.json';
-import getEulerInstance from '../utils/getEulerInstance';
+import getEulerInstance, { getMaticReadOnlyEulerInstance } from '../utils/getEulerInstance';
 import erc20Abi from '../config/abis/erc20.json';
 import useWeb3React from '../hooks/useWeb3React';
 import eTokenAbi from '../config/abis/eSource.json';
@@ -63,6 +63,8 @@ import {
   relayFee,
   TARGET_ADDRESS,
 } from '../config';
+import targetAbi from '../config/abis/target.json';
+import { getUserstats } from '../utils/getMarketsData'
 
 BigNumber.config({
   EXPONENTIAL_AT: 1000,
@@ -187,7 +189,6 @@ function Row(props) {
 
       const contractToApprove =
         chainId !== 80001 ? addressesChainMappings.eToken[chainId] : eulerInstance.addresses.euler;
-
       const approvalTxn = await eulerInstance.contracts[inputToken.symbol.toLowerCase()].approve(
         contractToApprove,
         approvalAmount
@@ -218,12 +219,27 @@ function Row(props) {
   };
   const updateUserStats = async () => {
     const eularInstance = getEulerInstance(chainId);
+    let mappedAccountAddress = null;
+    let mappedUserData = null;
     const query = {
       eulerContract: eularTestnetConfig.euler,
       account,
       markets: [inputToken.id],
     };
-    const marketsUserData = await eularInstance.contracts.eulerGeneralView.doQuery(query);
+    const marketsUserData = await getMaticReadOnlyEulerInstance().contracts.eulerGeneralView.doQuery(query);
+    if (chainId !== 80001) {
+      const eulerMaticInstance = getMaticReadOnlyEulerInstance();
+      await eulerMaticInstance.addContract('targetContract', targetAbi, TARGET_ADDRESS);
+      mappedAccountAddress = await eulerMaticInstance.contracts.targetContract.scw(account);
+    }
+    if (mappedAccountAddress) {
+      const query = {
+        eulerContract: getMaticReadOnlyEulerInstance().addresses.euler,
+        account: mappedAccountAddress,
+        markets: [],
+      };
+      mappedUserData = await getMaticReadOnlyEulerInstance().contracts.eulerGeneralView.doQuery(query);
+    }
     const isEntered = marketsUserData.enteredMarkets.find(
       (market) => market.toLowerCase() === inputToken.id.toLowerCase()
     );
@@ -234,22 +250,41 @@ function Row(props) {
       let eulerAllowance = new BigNumber('0');
       let eTokenBalanceUnderlying = new BigNumber('0');
       let dTokenBalance = new BigNumber('0');
-      marketsUserData.markets.forEach((market) => {
+      marketsUserData.markets.forEach(async (market) => {
         if (market[0] === isEntered) {
-          dTokenBalance = new BigNumber(market.dTokenBalance.toString()).dividedBy(10 ** parseFloat(market.decimals));
-          eTokenBalanceUnderlying = new BigNumber(market.eTokenBalanceUnderlying.toString()).dividedBy(
-            10 ** parseFloat(market.decimals)
-          );
-          eulerAllowance = new BigNumber(market.eulerAllowance.toString()).dividedBy(10 ** parseFloat(market.decimals));
-          tokenBal = new BigNumber(market.underlyingBalance.toString()).dividedBy(10 ** parseFloat(market.decimals));
-          liabilityValue = liabilityValue
-            .plus(market.liquidityStatus.liabilityValue.toString())
-            .dividedBy(10 ** parseFloat(market.decimals));
-          collateralValue = collateralValue
-            .plus(market.liquidityStatus.collateralValue.toString())
-            .dividedBy(10 ** parseFloat(market.decimals));
+          const mappedMarkert = mappedUserData.markets.find(mappedmarket => mappedmarket[0] === market[0])
+          const mappedData = await getUserstats(market)
+          liabilityValue = liabilityValue.plus(mappedData.liabilityValue)
+          collateralValue = collateralValue.plus(mappedData.collateralValue)
+          tokenBal = tokenBal.plus(mappedData.tokenBal)
+          eulerAllowance = eulerAllowance.plus(mappedData.eulerAllowance)
+          eTokenBalanceUnderlying = eTokenBalanceUnderlying.plus(mappedData.eTokenBalanceUnderlying)
+          dTokenBalance = dTokenBalance.plus(mappedData.dTokenBalance)
+          if (mappedMarkert) {
+            const mappedmarketData = await getUserstats(mappedMarkert)
+            liabilityValue = liabilityValue.plus(mappedmarketData.liabilityValue)
+            collateralValue = collateralValue.plus(mappedmarketData.collateralValue)
+            eTokenBalanceUnderlying = eTokenBalanceUnderlying.plus(mappedmarketData.eTokenBalanceUnderlying)
+            dTokenBalance = dTokenBalance.plus(mappedmarketData.dTokenBalance)
+          }
         }
       });
+      if (chainId === 5) {
+        const tokenAddress = nonMaticTokenAddressMapping[inputToken.symbol.toLowerCase()][chainId]
+        if (tokenAddress) {
+          await eularInstance.addContract(`g${inputToken.symbol.toLowerCase()}`, erc20Abi, tokenAddress)
+          const allowence = await eularInstance.contracts[`g${inputToken.symbol.toLowerCase()}`].allowance(
+            account,
+            addressesChainMappings.eToken[chainId]
+          );
+          console.log(account,
+            tokenAddress,
+            addressesChainMappings.eToken[chainId])
+          eulerAllowance = allowence.toString()
+          const tokenBalGoeri = await eularInstance.contracts[`g${inputToken.symbol.toLowerCase()}`].balanceOf(account);
+          tokenBal = new BigNumber(tokenBalGoeri.toString()).dividedBy(10 ** parseFloat(inputToken.decimals))
+        }
+      }
       const updatedUserData = {
         ...userData,
         isEntered: true,
