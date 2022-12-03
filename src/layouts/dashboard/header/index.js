@@ -4,11 +4,13 @@
 import { styled as muiStyled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
-import FormGroup from '@mui/material/FormGroup';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { faker } from '@faker-js/faker';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import { Box, Stack, AppBar, Toolbar, Typography } from '@mui/material';
+import {
+  createSocketConnection,
+  EVENTS
+} from '@pushprotocol/socket';
+import { Box, Stack, AppBar, Toolbar, Typography, Button } from '@mui/material';
 // utils
 import { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -92,13 +94,11 @@ Header.propTypes = {
   getAllNotificationsLoad: PropTypes.func,
   getAllNotificationsSuccess: PropTypes.func,
   getAllNotificationsError: PropTypes.func,
-  // addNewNotification: PropTypes.func,
+  addNewNotification: PropTypes.func,
   // updateNotification: PropTypes.func
 };
 
-const Label = () => <div style={{ color: '#212B36' }}>Notify Me!</div>;
-
-function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNotificationsError }) {
+function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNotificationsError, addNewNotification }) {
   const channelAddress = '0x4274A49FBeB724D75b8ba7bfC55FC8495A15AD1E';
   const [notificationOn, setNotificationOn] = useState(false);
   const { chainId, account } = useWeb3React();
@@ -140,7 +140,7 @@ function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNot
       });
       let filteredNotificaitons = notifications.filter(notification => notification.app === 'mirai-crosschain-notifications')
       filteredNotificaitons = filteredNotificaitons.map(notification => {
-        if(notification.app === 'mirai-crosschain-notifications'){
+        if (notification.app === 'mirai-crosschain-notifications') {
           const updatednotification = {
             ...notification,
             description: notification.notification.body,
@@ -148,24 +148,71 @@ function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNot
             type: 'order_placed',
             id: faker.datatype.uuid(),
           }
-          console.log({ updatednotification })
           return updatednotification;
         }
       })
       getAllNotificationsSuccess(filteredNotificaitons)
-    } catch(error) {
+    } catch (error) {
       getAllNotificationsError()
       console.error(error)
     }
   }, [account, chainId, getAllNotificationsError, getAllNotificationsLoad, getAllNotificationsSuccess]);
 
   useEffect(() => {
-    getPushSubscriptions();
+    if (account) {
+      getPushSubscriptions();
+    }
   }, [account, getPushSubscriptions]);
 
   useEffect(() => {
     if (notificationOn) getNotifications();
   }, [getNotifications, notificationOn]);
+  useEffect(() => {
+    const createpushSocket = () => {
+      try {
+        if (account) {
+          const pushSDKSocket = createSocketConnection({
+            user: `eip155:${chainId}:${account}`, // CAIP, see below
+            env: 'staging',
+            socketOptions: { autoConnect: false }
+          });
+          if (pushSDKSocket) {
+            pushSDKSocket.connect();
+            pushSDKSocket.on(EVENTS.CONNECT, () => {
+              console.log('connected')
+            });
+
+            pushSDKSocket.on(EVENTS.DISCONNECT, () => {
+              console.log('DISCONNECT')
+            });
+
+            pushSDKSocket.on(EVENTS.USER_FEEDS, (feedItem) => {
+              // feedItem is the notification data when that notification was received
+              console.log('feedItem', feedItem)
+              if (feedItem.payload && feedItem.payload.data.app === 'mirai-crosschain-notifications') {
+                addNewNotification({
+                  ...feedItem.payload.data,
+                  description: feedItem.payload.notification.body,
+                  title: feedItem.payload.data.msub,
+                  isUnRead: true,
+                  type: 'order_placed',
+                  createdAt: new Date(Math.floor(parseFloat(feedItem.payload.data.epoch))),
+                  id: faker.datatype.uuid(),
+                })
+              }
+            });
+          }
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      console.log({ account, chainId })
+    }
+
+    if (account) {
+      createpushSocket()
+    }
+  }, [account, addNewNotification, chainId])
 
   return (
     <StyledRoot>
@@ -180,27 +227,28 @@ function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNot
           }}
         >
           {chainId === 5 && (
-            <div style={{ margin: '0px 5px 0px 5px' }}>
-              <FormGroup>
-                <FormControlLabel
-                  control={<Switch checked={notificationOn} onChange={subscribeToNotifications} />}
-                  label={<Label />}
-                />
-              </FormGroup>
-            </div>
-          )}
-          {chainId === 5 && (
             <CrossChainEnabled>
               <StyledCardAccent />
               <Stack direction="row" alignItems="center">
                 <Typography sx={{ fontWeight: '700', color: '#212B36', fontSize: '15px' }}>
-                  Cross Chain Enabled
+                  Cross Chain Mode
                 </Typography>
                 <img src={crossChain} alt="cross chain" width="25px" style={{ marginLeft: '15px' }} />
               </Stack>
             </CrossChainEnabled>
           )}
-          <NotificationsPopover />
+
+          {notificationOn ?
+            <NotificationsPopover />
+            : (
+              <div>
+                <div style={{ margin: '0px 5px 0px 5px' }}>
+                  <Button variant='contained' onClick={subscribeToNotifications} endIcon={<NotificationsActiveIcon />}>
+                    Enabled Notifications
+                  </Button>
+                </div>
+              </div>
+            )}
           <NetworkToggle />
           <AccountPopover />
         </Stack>

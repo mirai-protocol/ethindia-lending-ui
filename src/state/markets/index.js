@@ -20,6 +20,7 @@ export const { Types: globalTypes, Creators: globalCreators } = createActions({
   getAllNotificationsError: ['error'],
   addNewNotification: ['data'],
   updateNotification: ['data'],
+  updateMarket: ['data'],
 });
 export const initialState = {
   getMarketsLoading: false,
