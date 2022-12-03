@@ -1,8 +1,8 @@
 /* eslint-disable import/no-anonymous-default-export */
-import { InjectedConnector } from "@web3-react/injected-connector";
+import { InjectedConnector } from '@web3-react/injected-connector';
 // import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 // import { TorusConnector } from "@web3-react/torus-connector";
-import { SUPPORTED_NETWORK_IDS } from "../config";
+import { SUPPORTED_NETWORK_IDS } from '../config';
 // import getNodeUrl from "./getRpcUrl";
 
 // const POLLING_INTERVAL = 12000;

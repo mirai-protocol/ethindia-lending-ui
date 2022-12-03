@@ -1,7 +1,5 @@
 /* eslint-disable import/no-import-module-exports */
-import {
-  configureStore,
-} from "@reduxjs/toolkit";
+import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import createReducer from './state/reducer';
 

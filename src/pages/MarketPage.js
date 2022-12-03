@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import { useWeb3React } from '@web3-react/core';
 import { connect } from 'react-redux';
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 import { compose } from 'redux';
 import { styled, alpha } from '@mui/material/styles';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -35,7 +35,7 @@ import {
   // Rating,
   OutlinedInput,
   InputAdornment,
-  Button
+  Button,
 } from '@mui/material';
 // components
 // import Label from '../components/label';
@@ -120,7 +120,17 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 function Row(props) {
-  const { id, inputToken, supplierApy, borrowerApy, totalBorrowBalanceUSD, totalDepositBalanceUSD, inputTokenPriceUSD, available, userData } = props.market;
+  const {
+    id,
+    inputToken,
+    supplierApy,
+    borrowerApy,
+    totalBorrowBalanceUSD,
+    totalDepositBalanceUSD,
+    inputTokenPriceUSD,
+    available,
+    userData,
+  } = props.market;
   const { account, updateMarket } = props;
   const [open, setOpen] = useState(false);
   const [approveLoading, setApproveLoading] = useState(false);
@@ -129,36 +139,36 @@ function Row(props) {
   const [depositLoading, setDepositLoading] = useState(false);
   const [amounts, setamounts] = useState({
     depositAmount: '0',
-    withdrawAmount: '0'
+    withdrawAmount: '0',
   });
   const [openMarketProcessing, setOpenMarketProcessing] = useState(false);
   const [isEntered, setIsEntered] = useState(userData.isEntered);
   const handleOpenMarket = async () => {
     try {
-      setOpenMarketProcessing(false)
-      const eularInstance = getEularInstance()
+      setOpenMarketProcessing(false);
+      const eularInstance = getEularInstance();
       await eularInstance.contracts.markets.enterMarket('0', inputToken.id);
-      setIsEntered(true)
-      setOpenMarketProcessing(true)
+      setIsEntered(true);
+      setOpenMarketProcessing(true);
     } catch (error) {
-      setOpenMarketProcessing(false)
-      console.error(error)
+      setOpenMarketProcessing(false);
+      console.error(error);
     }
-  }
+  };
   const handleTextChange = (title, event) => {
-    setamounts(amount => ({
+    setamounts((amount) => ({
       ...amount,
-      [title]: event.target.value
-    }))
-  }
+      [title]: event.target.value,
+    }));
+  };
   const handleApprove = async () => {
     try {
-      setApproveLoading(true)
-      const eularInstance = getEularInstance()
-      await eularInstance.addContract(inputToken.symbol.toLowerCase(), erc20Abi, inputToken.id)
+      setApproveLoading(true);
+      const eularInstance = getEularInstance();
+      await eularInstance.addContract(inputToken.symbol.toLowerCase(), erc20Abi, inputToken.id);
       const approvalAmount = new BigNumber(amounts.depositAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
-        .toJSON()
+        .toJSON();
       const approvalTxn = await eularInstance.contracts[inputToken.symbol.toLowerCase()].approve(
         eularInstance.addresses.euler,
         approvalAmount
@@ -166,52 +176,60 @@ function Row(props) {
       await approvalTxn.wait();
       const allowence = await eularInstance.contracts[inputToken.symbol.toLowerCase()].allowance(
         account,
-        eularInstance.addresses.euler,
+        eularInstance.addresses.euler
       );
-      const eulerAllowance = new BigNumber(allowence.toString()).dividedBy(10 ** parseFloat(inputToken.decimals))
+      const eulerAllowance = new BigNumber(allowence.toString()).dividedBy(10 ** parseFloat(inputToken.decimals));
       const newMarket = {
         id,
         market: {
           ...props.market,
           userData: {
             ...userData,
-            eulerAllowance: eulerAllowance.toString()
-          }
-        }
-      }
-      updateMarket(newMarket)
-      setApproveLoading(false)
+            eulerAllowance: eulerAllowance.toString(),
+          },
+        },
+      };
+      updateMarket(newMarket);
+      setApproveLoading(false);
     } catch (error) {
-      setApproveLoading(false)
+      setApproveLoading(false);
       console.log('error', error);
     }
-  }
+  };
   const updateUserStats = async () => {
-    const eularInstance = getEularInstance()
+    const eularInstance = getEularInstance();
     const query = {
       eulerContract: eularTestnetConfig.euler,
       account,
-      markets: [inputToken.id]
-    }
+      markets: [inputToken.id],
+    };
     const marketsUserData = await eularInstance.contracts.eulerGeneralView.doQuery(query);
-    const isEntered = marketsUserData.enteredMarkets.find(market => market.toLowerCase() === inputToken.id.toLowerCase())
+    const isEntered = marketsUserData.enteredMarkets.find(
+      (market) => market.toLowerCase() === inputToken.id.toLowerCase()
+    );
     if (isEntered) {
-      let liabilityValue = new BigNumber('0')
-      let collateralValue = new BigNumber('0')
-      let tokenBal = new BigNumber('0')
-      let eulerAllowance = new BigNumber('0')
-      let eTokenBalanceUnderlying = new BigNumber('0')
-      let dTokenBalance = new BigNumber('0')
-      marketsUserData.markets.forEach(market => {
+      let liabilityValue = new BigNumber('0');
+      let collateralValue = new BigNumber('0');
+      let tokenBal = new BigNumber('0');
+      let eulerAllowance = new BigNumber('0');
+      let eTokenBalanceUnderlying = new BigNumber('0');
+      let dTokenBalance = new BigNumber('0');
+      marketsUserData.markets.forEach((market) => {
         if (market[0] === isEntered) {
-          dTokenBalance = new BigNumber(market.dTokenBalance.toString()).dividedBy(10 ** parseFloat(market.decimals))
-          eTokenBalanceUnderlying = new BigNumber(market.eTokenBalanceUnderlying.toString()).dividedBy(10 ** parseFloat(market.decimals))
-          eulerAllowance = new BigNumber(market.eulerAllowance.toString()).dividedBy(10 ** parseFloat(market.decimals))
-          tokenBal = new BigNumber(market.underlyingBalance.toString()).dividedBy(10 ** parseFloat(market.decimals))
-          liabilityValue = liabilityValue.plus(market.liquidityStatus.liabilityValue.toString()).dividedBy(10 ** parseFloat(market.decimals))
-          collateralValue = collateralValue.plus(market.liquidityStatus.collateralValue.toString()).dividedBy(10 ** parseFloat(market.decimals))
+          dTokenBalance = new BigNumber(market.dTokenBalance.toString()).dividedBy(10 ** parseFloat(market.decimals));
+          eTokenBalanceUnderlying = new BigNumber(market.eTokenBalanceUnderlying.toString()).dividedBy(
+            10 ** parseFloat(market.decimals)
+          );
+          eulerAllowance = new BigNumber(market.eulerAllowance.toString()).dividedBy(10 ** parseFloat(market.decimals));
+          tokenBal = new BigNumber(market.underlyingBalance.toString()).dividedBy(10 ** parseFloat(market.decimals));
+          liabilityValue = liabilityValue
+            .plus(market.liquidityStatus.liabilityValue.toString())
+            .dividedBy(10 ** parseFloat(market.decimals));
+          collateralValue = collateralValue
+            .plus(market.liquidityStatus.collateralValue.toString())
+            .dividedBy(10 ** parseFloat(market.decimals));
         }
-      })
+      });
       const updatedUserData = {
         ...userData,
         isEntered: true,
@@ -220,73 +238,72 @@ function Row(props) {
         eulerAllowance: eulerAllowance.toString(),
         tokenBal: tokenBal.toString(),
         totalCollatral: collateralValue.toString(),
-        totalLiability: liabilityValue.toString()
-      }
+        totalLiability: liabilityValue.toString(),
+      };
       const newMarket = {
         id,
         market: {
           ...props.market,
-          userData: updatedUserData
-        }
-      }
-      updateMarket(newMarket)
+          userData: updatedUserData,
+        },
+      };
+      updateMarket(newMarket);
     }
-  }
+  };
   const handleDeposit = async () => {
     try {
-      const eularInstance = getEularInstance()
-      setDepositLoading(true)
+      const eularInstance = getEularInstance();
+      setDepositLoading(true);
       const eToken = await eularInstance.eTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.depositAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
-        .toJSON()
-      const tx = await eToken.deposit('0', approvalAmount)
+        .toJSON();
+      const tx = await eToken.deposit('0', approvalAmount);
       await tx.wait();
-      setDepositLoading(false)
-      updateUserStats()
+      setDepositLoading(false);
+      updateUserStats();
     } catch (error) {
-      setDepositLoading(false)
+      setDepositLoading(false);
       console.log('error', error);
     }
-  }
+  };
   const handleBorrow = async () => {
     try {
-      
-      setBorrowLoading(true)
-      const eularInstance = getEularInstance()
+      setBorrowLoading(true);
+      const eularInstance = getEularInstance();
       const dToken = await eularInstance.dTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
-        .toJSON()
-      const tx = await dToken.borrow('0', approvalAmount)
+        .toJSON();
+      const tx = await dToken.borrow('0', approvalAmount);
       await tx.wait();
-      updateUserStats()
-      setBorrowLoading(false)
+      updateUserStats();
+      setBorrowLoading(false);
     } catch (error) {
-      setBorrowLoading(false)
-      console.error(error)
+      setBorrowLoading(false);
+      console.error(error);
     }
-  }
+  };
   const handleRepay = async () => {
     try {
-      setRepayLoading(true)
-      const eularInstance = getEularInstance()
+      setRepayLoading(true);
+      const eularInstance = getEularInstance();
       const dToken = await eularInstance.dTokenOf(inputToken.id);
       const approvalAmount = new BigNumber(amounts.withdrawAmount)
         .multipliedBy(new BigNumber(10).pow(inputToken.decimals))
-        .toJSON()
-      const tx = await dToken.repay('0', approvalAmount)
+        .toJSON();
+      const tx = await dToken.repay('0', approvalAmount);
       await tx.wait();
-      updateUserStats()
-      setRepayLoading(false)
+      updateUserStats();
+      setRepayLoading(false);
     } catch (error) {
-      setRepayLoading(false)
-      console.error(error)
+      setRepayLoading(false);
+      console.error(error);
     }
-  }
+  };
   useEffect(() => {
-    setIsEntered(userData.isEntered)
-  }, [userData.isEntered])
+    setIsEntered(userData.isEntered);
+  }, [userData.isEntered]);
 
   return (
     <>
@@ -321,9 +338,7 @@ function Row(props) {
         </TableCell> */}
 
         <TableCell align="right">
-          <span style={{ fontWeight: '700', fontSize: '16px' }}>
-            ${parseFloat(inputTokenPriceUSD).toFixed(2)}
-          </span>
+          <span style={{ fontWeight: '700', fontSize: '16px' }}>${parseFloat(inputTokenPriceUSD).toFixed(2)}</span>
         </TableCell>
 
         <TableCell align="right">
@@ -337,9 +352,7 @@ function Row(props) {
           </span>
         </TableCell>
         <TableCell align="right">
-          <span style={{ fontWeight: '700', fontSize: '16px' }}>
-            {fShortenNumber(totalDepositBalanceUSD)}
-          </span>
+          <span style={{ fontWeight: '700', fontSize: '16px' }}>{fShortenNumber(totalDepositBalanceUSD)}</span>
         </TableCell>
         <TableCell align="right">
           <span style={{ fontWeight: '700', fontSize: '16px', color: '#ffa000' }}>
@@ -355,24 +368,37 @@ function Row(props) {
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
           <Collapse in={open} timeout="auto" unmountOnExit sx={{ padding: '20px 10px' }}>
-            {isEntered ?
+            {isEntered ? (
               <Grid container spacing={3} justifyContent="center">
                 <Grid item xs={12} sm={6} md={6}>
                   <Card sx={{ padding: '20px' }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ marginBottom: '20px' }}>
-                      <CardHeader title="Deposit into Market" sx={{ padding: '0px' }} subheader={`Balance: ${fShortenNumber(parseFloat(userData.tokenBal))} ${inputToken.symbol}`} />
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ marginBottom: '20px' }}
+                    >
+                      <CardHeader
+                        title="Deposit into Market"
+                        sx={{ padding: '0px' }}
+                        subheader={`Balance: ${fShortenNumber(parseFloat(userData.tokenBal))} ${inputToken.symbol}`}
+                      />
                       <Stack alignItems="center" justifyContent="centercenter">
-                        <span style={{
-                          fontSize: '16px',
-                          fontWeight: 700
-                        }}>
+                        <span
+                          style={{
+                            fontSize: '16px',
+                            fontWeight: 700,
+                          }}
+                        >
                           {inputToken.symbol} Deposited
                         </span>
-                        <span style={{
-                          fontSize: '18px',
-                          color: '#2e7d32',
-                          fontWeight: 700
-                        }}>
+                        <span
+                          style={{
+                            fontSize: '18px',
+                            color: '#2e7d32',
+                            fontWeight: 700,
+                          }}
+                        >
                           {fShortenNumber(parseFloat(userData.eTokenBalanceUnderlying))} {inputToken.symbol}
                         </span>
                       </Stack>
@@ -382,25 +408,40 @@ function Row(props) {
                       onChange={(event) => handleTextChange('depositAmount', event)}
                       placeholder="Enter Amount......"
                       label="Amount"
-                      type='number'
+                      type="number"
                       endAdornment={
                         <InputAdornment position="end">
-                          <Button variant="outlined" color='secondary' onClick={() =>
-                            setamounts(amount => ({
-                              ...amount,
-                              depositAmount: userData.tokenBal
-                            }))}
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() =>
+                              setamounts((amount) => ({
+                                ...amount,
+                                depositAmount: userData.tokenBal,
+                              }))
+                            }
                           >
                             Max
                           </Button>
                         </InputAdornment>
                       }
                     />
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={3} sx={{ marginTop: '20px' }}>
-                      <Button variant="outlined"
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      spacing={3}
+                      sx={{ marginTop: '20px' }}
+                    >
+                      <Button
+                        variant="outlined"
                         onClick={handleApprove}
                         fullWidth
-                        disabled={approveLoading || parseFloat(amounts.depositAmount) <= 0 || parseFloat(userData.eulerAllowance) > parseFloat(amounts.depositAmount)}
+                        disabled={
+                          approveLoading ||
+                          parseFloat(amounts.depositAmount) <= 0 ||
+                          parseFloat(userData.eulerAllowance) > parseFloat(amounts.depositAmount)
+                        }
                       >
                         {approveLoading ? 'Processing...' : 'Approve'}
                       </Button>
@@ -408,7 +449,11 @@ function Row(props) {
                         variant="contained"
                         fullWidth
                         onClick={handleDeposit}
-                        disabled={depositLoading || parseFloat(amounts.depositAmount) <= 0 || parseFloat(userData.eulerAllowance) <= parseFloat(amounts.depositAmount)}
+                        disabled={
+                          depositLoading ||
+                          parseFloat(amounts.depositAmount) <= 0 ||
+                          parseFloat(userData.eulerAllowance) <= parseFloat(amounts.depositAmount)
+                        }
                         endIcon={<AddCircleIcon />}
                       >
                         {depositLoading ? 'Processing...' : `Deposit ${inputToken.symbol}`}
@@ -418,20 +463,33 @@ function Row(props) {
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
                   <Card sx={{ padding: '20px' }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ marginBottom: '20px' }}>
-                      <CardHeader title="Borrow from Market" sx={{ padding: '0px' }} subheader={`Balance: ${fShortenNumber(parseFloat(userData.tokenBal))} ${inputToken.symbol}`} />
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ marginBottom: '20px' }}
+                    >
+                      <CardHeader
+                        title="Borrow from Market"
+                        sx={{ padding: '0px' }}
+                        subheader={`Balance: ${fShortenNumber(parseFloat(userData.tokenBal))} ${inputToken.symbol}`}
+                      />
                       <Stack alignItems="center" justifyContent="centercenter">
-                        <span style={{
-                          fontSize: '16px',
-                          fontWeight: 700
-                        }}>
+                        <span
+                          style={{
+                            fontSize: '16px',
+                            fontWeight: 700,
+                          }}
+                        >
                           {inputToken.symbol} Borrowed
                         </span>
-                        <span style={{
-                          fontSize: '18px',
-                          color: '#d32f2f',
-                          fontWeight: 700
-                        }}>
+                        <span
+                          style={{
+                            fontSize: '18px',
+                            color: '#d32f2f',
+                            fontWeight: 700,
+                          }}
+                        >
                           {fShortenNumber(parseFloat(userData.dTokenBalance))} {inputToken.symbol}
                         </span>
                       </Stack>
@@ -439,7 +497,7 @@ function Row(props) {
                     <StyledInput
                       value={amounts.withdrawAmount}
                       onChange={(event) => handleTextChange('withdrawAmount', event)}
-                      type='number'
+                      type="number"
                       placeholder="Enter Amount......"
                       label="Amount"
                       endAdornment={
@@ -448,7 +506,13 @@ function Row(props) {
                         </InputAdornment>
                       }
                     />
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={3} sx={{ marginTop: '20px' }}>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      spacing={3}
+                      sx={{ marginTop: '20px' }}
+                    >
                       <Button
                         variant="outlined"
                         fullWidth
@@ -470,24 +534,24 @@ function Row(props) {
                     </Stack>
                   </Card>
                 </Grid>
-              </Grid> :
+              </Grid>
+            ) : (
               <div>
                 <Card sx={{ padding: '20px' }}>
                   <Stack direction="row" alignItems="center" spacing={3}>
                     <CardHeader title="Enter the Market" sx={{ padding: '0px' }} />
-                    <Button variant='contained' disabled={openMarketProcessing} onClick={handleOpenMarket}>
+                    <Button variant="contained" disabled={openMarketProcessing} onClick={handleOpenMarket}>
                       {openMarketProcessing ? 'Processing...' : 'Enter The Market'}
                     </Button>
                   </Stack>
                 </Card>
-
               </div>
-            }
+            )}
           </Collapse>
         </TableCell>
       </TableRow>
     </>
-  )
+  );
 }
 function MarketPage({ markets, updateMarket }) {
   const { account } = useWeb3React();
@@ -544,8 +608,8 @@ function MarketPage({ markets, updateMarket }) {
 
   const isNotFound = !filteredUsers.length && !!filterName;
   useEffect(() => {
-    setMarkestData(markets.markets)
-  }, [markets.getMarketsSuccess, markets.markets])
+    setMarkestData(markets.markets);
+  }, [markets.getMarketsSuccess, markets.markets]);
   return (
     <>
       <Helmet>
@@ -561,10 +625,22 @@ function MarketPage({ markets, updateMarket }) {
         <div style={{ marginBottom: '30px' }}>
           <Grid container spacing={3} justifyContent="center">
             <Grid item xs={12} sm={6} md={3}>
-              <AppWidgetSummary title="Total Supplied Amount" prefix="$ " total={parseFloat(markets.totalUserSupplied)} color="success" icon={<img src={walletyIcon} width="40px" alt="Markets" />} />
+              <AppWidgetSummary
+                title="Total Supplied Amount"
+                prefix="$ "
+                total={parseFloat(markets.totalUserSupplied)}
+                color="success"
+                icon={<img src={walletyIcon} width="40px" alt="Markets" />}
+              />
             </Grid>
             <Grid item xs={12} sm={6} md={3}>
-              <AppWidgetSummary title="Total Borrowed Amount" prefix="$ " total={parseFloat(markets.totalUserBorrowed)} color="error" icon={<img src={liabilityIcon} width="40px" alt="Markets" />} />
+              <AppWidgetSummary
+                title="Total Borrowed Amount"
+                prefix="$ "
+                total={parseFloat(markets.totalUserBorrowed)}
+                color="error"
+                icon={<img src={liabilityIcon} width="40px" alt="Markets" />}
+              />
             </Grid>
           </Grid>
         </div>
@@ -664,7 +740,7 @@ function MarketPage({ markets, updateMarket }) {
     </>
   );
 }
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   markets: state.markets,
 });
 
@@ -673,16 +749,11 @@ export function mapDispatchToProps(dispatch) {
   return {
     getMarketsLoad: () => dispatch(getMarketsLoad()),
     getMarketsError: () => dispatch(getMarketsError()),
-    getMarketsSuccess: data => dispatch(getMarketsSuccess(data)),
-    updateMarket: data => dispatch(updateMarket(data)),
+    getMarketsSuccess: (data) => dispatch(getMarketsSuccess(data)),
+    updateMarket: (data) => dispatch(updateMarket(data)),
   };
 }
 
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
 
-export default compose(
-  withConnect,
-)(MarketPage);
+export default compose(withConnect)(MarketPage);

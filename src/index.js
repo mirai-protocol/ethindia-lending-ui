@@ -1,11 +1,11 @@
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { Provider } from "react-redux";
+import { Provider } from 'react-redux';
 import { HelmetProvider } from 'react-helmet-async';
-import Providers from "./Provider";
+import Providers from './Provider';
 //
 import App from './App';
-import store from "./configureStore";
+import store from './configureStore';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';
 

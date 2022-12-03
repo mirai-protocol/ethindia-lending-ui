@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom';
 import { styled, alpha } from '@mui/material/styles';
 import { Box, Link, Drawer, Typography, Avatar } from '@mui/material';
 // mock
-import { NETWORKS } from '../../../config'
+import { NETWORKS } from '../../../config';
 // hooks
 import useResponsive from '../../../hooks/useResponsive';
 // components
@@ -39,15 +39,12 @@ Nav.propTypes = {
   getMarketsLoad: PropTypes.func,
   getMarketsSuccess: PropTypes.func,
   getMarketsError: PropTypes.func,
-  setMarketsStats: PropTypes.func
+  setMarketsStats: PropTypes.func,
 };
 
 function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarketsError, setMarketsStats }) {
   const { pathname } = useLocation();
-  const {
-    account,
-    chainId,
-  } = useWeb3React();
+  const { account, chainId } = useWeb3React();
   const isDesktop = useResponsive('up', 'lg');
   useEffect(() => {
     if (openNav) {
@@ -58,22 +55,21 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
   useEffect(() => {
     const getMarkets = async () => {
       getMarketsLoad();
-      const markets = await getMarketsData(account)
+      const markets = await getMarketsData(account);
       if (markets.success && markets.data.markets) {
-        getMarketsSuccess(markets.data.markets)
+        getMarketsSuccess(markets.data.markets);
         setMarketsStats({
           totalValueLocked: markets.data.totalSupply.toString(),
           totalValueBorrowed: markets.data.totalBorrowed.toString(),
           totalUserBorrowed: markets.data.totalUserBorrowed.toString(),
-          totalUserSupplied: markets.data.totalUserSupplied.toString()
-        })
-
+          totalUserSupplied: markets.data.totalUserSupplied.toString(),
+        });
       }
       if (markets.error) {
-        getMarketsError()
+        getMarketsError();
       }
-    }
-    getMarkets()
+    };
+    getMarkets();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [account]);
 
@@ -152,7 +148,7 @@ function Nav({ openNav, onCloseNav, getMarketsLoad, getMarketsSuccess, getMarket
   );
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   markets: state.markets,
 });
 
@@ -161,16 +157,11 @@ export function mapDispatchToProps(dispatch) {
   return {
     getMarketsLoad: () => dispatch(getMarketsLoad()),
     getMarketsError: () => dispatch(getMarketsError()),
-    getMarketsSuccess: data => dispatch(getMarketsSuccess(data)),
-    setMarketsStats: data => dispatch(setMarketsStats(data)),
+    getMarketsSuccess: (data) => dispatch(getMarketsSuccess(data)),
+    setMarketsStats: (data) => dispatch(setMarketsStats(data)),
   };
 }
 
-const withConnect = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-);
+const withConnect = connect(mapStateToProps, mapDispatchToProps);
 
-export default compose(
-  withConnect,
-)(Nav);
+export default compose(withConnect)(Nav);
