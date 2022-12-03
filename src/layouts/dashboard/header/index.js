@@ -1,16 +1,17 @@
 // @mui
 import { styled as muiStyled } from '@mui/material/styles';
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes } from 'styled-components';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 import { Box, Stack, AppBar, Toolbar, Typography } from '@mui/material';
 // utils
+import { useCallback, useEffect, useState } from 'react';
+import * as PushAPI from '@pushprotocol/restapi';
+import { ethers } from 'ethers';
 import { bgBlur } from '../../../utils/cssStyles';
 import useWeb3React from '../../../hooks/useWeb3React';
-// components
-// import Iconify from '../../../components/iconify';
-//
-// import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
-import LanguagePopover from './LanguagePopover';
 import NotificationsPopover from './NotificationsPopover';
 import NetworkToggle from './NetworkToggle';
 import crossChain from '../../../images/alert.gif';
@@ -41,19 +42,19 @@ const StyledToolbar = muiStyled(Toolbar)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 const RainbowLight = keyframes`
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
+  0% {
+    background-position: 0 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
 `;
 const StyledCardAccent = styled.div`
   visibility: visible;
-  background: linear-gradient(45deg, rgba(255,255,255,1) 0%, #5A69E6 35%, #4caf50 100%);
+  background: linear-gradient(45deg, rgba(255, 255, 255, 1) 0%, #5a69e6 35%, #4caf50 100%);
   background-size: 300% 300%;
   animation: ${RainbowLight} 2s linear infinite;
   border-radius: 0.625rem !important;
@@ -66,14 +67,15 @@ const StyledCardAccent = styled.div`
   z-index: -1;
   /* */
 `;
-const CorssChainEnabled = styled.div`
-    overflow: initial;
-    position: relative;
-    background: #ffffff;
-    border-radius: 10px;
-    font-weight: 700;
-    padding: 10px;
-    :hover {
+const CrossChainEnabled = styled.div`
+  overflow: initial;
+  position: relative;
+  background: #ffffff;
+  border-radius: 10px;
+  font-weight: 700;
+  padding: 10px;
+
+  :hover {
     ${StyledCardAccent} {
       visibility: visible;
     }
@@ -83,27 +85,61 @@ Header.propTypes = {
   // onOpenNav: PropTypes.func,
 };
 
+const Label = () => <div style={{ color: '#212B36' }}>Notify Me!</div>;
+
 export default function Header() {
-  const {
-    chainId,
-  } = useWeb3React();
+  const channelAddress = '0x4274A49FBeB724D75b8ba7bfC55FC8495A15AD1E';
+  const [notificationOn, setNotificationOn] = useState(false);
+  const { chainId, account } = useWeb3React();
+
+  const subscribeToNotifications = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const _signer = provider.getSigner();
+
+    await PushAPI.channels.subscribe({
+      signer: _signer,
+      channelAddress: `eip155:${chainId}:${channelAddress}`, // channel address in CAIP
+      userAddress: `eip155:${chainId}:${account}`, // user address in CAIP
+      onSuccess: () => {
+        console.log('opt in success');
+        setNotificationOn(true);
+      },
+      onError: () => {
+        console.error('opt in error');
+      },
+      env: 'staging',
+    });
+  };
+  const getPushSubscriptions = useCallback(async () => {
+    const subscriptions = await PushAPI.user.getSubscriptions({
+      user: `eip155:${chainId}:${account}`, // user address in CAIP
+      env: 'staging',
+    });
+    const isNotificationOn = subscriptions.find((subscription) => subscription.channel === channelAddress);
+    if (isNotificationOn) {
+      setNotificationOn(() => true);
+    }
+  }, [account, chainId]);
+  const getNotifications = useCallback(async () => {
+    const notifications = await PushAPI.user.getFeeds({
+      user: `eip155:${chainId}:${account}`, // user address in CAIP
+      env: 'staging',
+    });
+    console.log('notifications: ', notifications);
+  }, [account, chainId]);
+
+  useEffect(() => {
+    getPushSubscriptions();
+  }, [account, getPushSubscriptions]);
+
+  useEffect(() => {
+    if (notificationOn) getNotifications();
+  }, [getNotifications, notificationOn]);
+
   return (
     <StyledRoot>
       <StyledToolbar>
-        {/* <IconButton
-          onClick={onOpenNav}
-          sx={{
-            mr: 1,
-            color: 'text.primary',
-            display: { lg: 'none' },
-          }}
-        >
-          <Iconify icon="eva:menu-2-fill" />
-        </IconButton> */}
-
-        {/* <Searchbar /> */}
         <Box sx={{ flexGrow: 1 }} />
-
         <Stack
           direction="row"
           alignItems="center"
@@ -112,9 +148,18 @@ export default function Header() {
             sm: 1,
           }}
         >
-          {false && <LanguagePopover />}
-          {chainId === 5
-            && <CorssChainEnabled>
+          {chainId === 5 && (
+            <div style={{ margin: '0px 5px 0px 5px' }}>
+              <FormGroup>
+                <FormControlLabel
+                  control={<Switch checked={notificationOn} onChange={subscribeToNotifications} />}
+                  label={<Label />}
+                />
+              </FormGroup>
+            </div>
+          )}
+          {chainId === 5 && (
+            <CrossChainEnabled>
               <StyledCardAccent />
               <Stack direction="row" alignItems="center">
                 <Typography sx={{ fontWeight: '700', color: '#212B36', fontSize: '15px' }}>
@@ -122,7 +167,8 @@ export default function Header() {
                 </Typography>
                 <img src={crossChain} alt="cross chain" width="25px" style={{ marginLeft: '15px' }} />
               </Stack>
-            </CorssChainEnabled>}
+            </CrossChainEnabled>
+          )}
           <NotificationsPopover />
           <NetworkToggle />
           <AccountPopover />
