@@ -171,19 +171,24 @@ function Row(props) {
   const handleApprove = async () => {
     try {
       setApproveLoading(true);
-      const eularInstance = getEulerInstance();
-      await eularInstance.addContract(inputToken.symbol.toLowerCase(), erc20Abi, inputToken.id);
+      const eulerInstance = getEulerInstance();
+      await eulerInstance.addContract(inputToken.symbol.toLowerCase(), erc20Abi, inputToken.id);
       const approvalAmount = ethers.BigNumber.from(MaxUint256.toString());
-      const approvalTxn = await eularInstance.contracts[inputToken.symbol.toLowerCase()].approve(
-        eularInstance.addresses.euler,
+
+      const contractToApprove =
+        chainId !== 80001 ? addressesChainMappings.eToken[chainId] : eulerInstance.addresses.euler;
+
+      const approvalTxn = await eulerInstance.contracts[inputToken.symbol.toLowerCase()].approve(
+        contractToApprove,
         approvalAmount
       );
       await approvalTxn.wait();
-      const allowence = await eularInstance.contracts[inputToken.symbol.toLowerCase()].allowance(
+
+      const allowance = await eulerInstance.contracts[inputToken.symbol.toLowerCase()].allowance(
         account,
-        eularInstance.addresses.euler
+        contractToApprove
       );
-      const eulerAllowance = new BigNumber(allowence.toString()).dividedBy(10 ** parseFloat(inputToken.decimals));
+      const eulerAllowance = new BigNumber(allowance.toString()).dividedBy(10 ** parseFloat(inputToken.decimals));
       const newMarket = {
         id,
         market: {
