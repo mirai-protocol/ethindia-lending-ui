@@ -173,3 +173,14 @@ export const nonMaticTokenAddressMapping = {
     5: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
   },
 };
+
+export const addressesChainMappings = {
+  eToken: {
+    80001: '0x28Abb9C008F83b3B29CcA7FF7859293978c847f4',
+    5: '0x5d0DD2FB435e4c52B9CcBdb29D10334383a6aB0B',
+  },
+  dToken: {
+    80001: '0x24f1665e4154524563586EbB7bA7A23E40ad68Bd',
+    5: '0xdf4C869AafC93dC850d7070216Fd873E804B4eD6',
+  },
+};
