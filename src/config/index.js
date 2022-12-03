@@ -5,30 +5,7 @@ export const setMetamaskGasPrice = {
   maxPriorityFeePerGas: null,
   maxFeePerGas: null,
 };
-export const SUPPORTED_NETWORK_IDS = [137, 80001];
-
-export const NATIVE_TOKENS = {
-  80001: {
-    name: "MATIC",
-    symbol: "MATIC",
-    decimals: "18",
-  },
-  137: {
-    name: "MATIC",
-    symbol: "MATIC",
-    decimals: "18",
-  },
-  1: {
-    name: "ETH",
-    symbol: "ETH",
-    decimals: "18",
-  },
-  1287: {
-    name: "Glimmer",
-    symbol: "GLMR",
-    decimals: "18",
-  },
-};
+export const SUPPORTED_NETWORK_IDS = [137, 80001, 5, 1];
 export const TOKEN_IMAGES = {
 
   CNT: "https://cryption-network-local.infura-ipfs.io/ipfs/QmceihNozdFNThRJiP2X93X2LXmSb5XWzsTaNsVBA7GwTZ",
@@ -49,7 +26,7 @@ export const TOKEN_IMAGES = {
   LINK: "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png?1547034700"
 }
 export const injected = new InjectedConnector({
-  supportedChainIds: [137, 80001],
+  supportedChainIds: [137, 80001, 5, 1],
 });
 export const SUPPORTED_WALLETS = {
   METAMASK: {
@@ -132,3 +109,54 @@ export const NETWORKS = {
     name: 'Polygon Testnet'
   }
 }
+export const SUPPORTED_NETWORKS = [
+  // {
+  //   title: "Polygon Mainnet",
+  //   chainId: "137",
+  //   imgSrc: "https://polygonscan.com/images/svg/brands/polygon.svg",
+  //   rpcUrl:
+  //     "https://young-broken-waterfall.matic.quiknode.pro/947d91789e47ec1531edf15e5fc1b8d7f6de9f2b/",
+  // },
+  // {
+  //   title: "Ethereum Mainnet",
+  //   chainId: "1",
+  //   imgSrc: "https://etherscan.io/images/brandassets/etherscan-logo-circle.jpg",
+  //   rpcUrl: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+  // },
+  {
+    title: "Mumbai Testnet",
+    name: "moonbase-alphanet",
+    chainId: "80001",
+    imgSrc: "https://polygonscan.com/images/svg/brands/polygon.svg",
+    rpcUrl:
+      "https://polygon-mumbai.g.alchemy.com/v2/FTbhFEHlJbgxwf0U0DQtTDqbANNhfuc1",
+  },
+  {
+    title: "Goerli Test Network",
+    chainId: "5",
+    imgSrc: "https://etherscan.io/images/brandassets/etherscan-logo-circle.jpg",
+    rpcUrl: "https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
+  },
+]
+export const NATIVE_TOKENS = {
+  80001: {
+    name: "MATIC",
+    symbol: "MATIC",
+    decimals: "18",
+  },
+  137: {
+    name: "MATIC",
+    symbol: "MATIC",
+    decimals: "18",
+  },
+  1: {
+    name: "ETH",
+    symbol: "ETH",
+    decimals: "18",
+  },
+  5: {
+    name: "ETH",
+    symbol: "ETH",
+    decimals: "18",
+  },
+};

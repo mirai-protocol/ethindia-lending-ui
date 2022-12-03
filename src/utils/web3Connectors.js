@@ -2,13 +2,12 @@
 import { InjectedConnector } from "@web3-react/injected-connector";
 // import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 // import { TorusConnector } from "@web3-react/torus-connector";
-// import { SUPPORTED_NETWORK_IDS } from "../config";
+import { SUPPORTED_NETWORK_IDS } from "../config";
 // import getNodeUrl from "./getRpcUrl";
 
 // const POLLING_INTERVAL = 12000;
 // const rpcUrl = getNodeUrl();
 // const chainId = parseInt(process.env.REACT_APP_CHAIN_ID, 10);
-const SUPPORTED_NETWORK_IDS = [80001, 137]
 // eslint-disable-next-line func-names
 export default function () {
   const injected = new InjectedConnector({
