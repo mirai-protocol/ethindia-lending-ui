@@ -184,3 +184,7 @@ export const addressesChainMappings = {
     5: '0xdf4C869AafC93dC850d7070216Fd873E804B4eD6',
   },
 };
+
+export const TARGET_ADDRESS = '0x8211dF07FEbB1607d4327dE409658b5Eb3e36f47';
+export const relayFee = 0;
+export const destinationDomain = 9991;
