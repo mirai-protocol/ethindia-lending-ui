@@ -18,9 +18,11 @@ export const getMaticReadOnlyEulerInstance = () => {
       eulDistributor: eularTestnetConfig.eulDistributor,
       eulerGeneralView: eularTestnetConfig.eulerGeneralView,
       eul: eularTestnetConfig.eul.address,
-      eToken: eularTestnetConfig.eToken,
-      dToken: eularTestnetConfig.dToken,
-      pToken: eularTestnetConfig.pToken,
+      swapHandler1Inch: eularTestnetConfig.swapHandler1Inch,
+      swapHandlerUniAutoRouter: eularTestnetConfig.swapHandlerUniAutoRouter,
+      eToken: eularTestnetConfig.eToken, // not req
+      dToken: eularTestnetConfig.dToken, // not req
+      pToken: eularTestnetConfig.pToken, // not req
     },
     eul: eularTestnetConfig.eul,
     referenceAsset: '0x38f501A3447aD5c009Bd94704eaAe099300d8B46',
@@ -42,9 +44,11 @@ const getEulerInstance = (chainId) => {
       eulDistributor: eularTestnetConfig.eulDistributor,
       eulerGeneralView: eularTestnetConfig.eulerGeneralView,
       eul: eularTestnetConfig.eul.address,
-      eToken: eularTestnetConfig.eToken,
-      dToken: eularTestnetConfig.dToken,
-      pToken: eularTestnetConfig.pToken,
+      swapHandler1Inch: eularTestnetConfig.swapHandler1Inch,
+      swapHandlerUniAutoRouter: eularTestnetConfig.swapHandlerUniAutoRouter,
+      eToken: eularTestnetConfig.eToken, // not req
+      dToken: eularTestnetConfig.dToken, // not req
+      pToken: eularTestnetConfig.pToken, // not req
     },
     eul: eularTestnetConfig.eul,
     referenceAsset: '0x38f501A3447aD5c009Bd94704eaAe099300d8B46',
