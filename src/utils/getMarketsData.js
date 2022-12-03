@@ -151,7 +151,6 @@ export const getMarketsData = async (account, chainId) => {
             totalUserBorrowed = totalUserBorrowed.plus(dTokenBalance).multipliedBy(eachMarket.inputTokenPriceUSD);
             totalUserLiadbility = totalUserLiadbility.plus(liabilityValue);
             totalUserCollateral = totalUserCollateral.plus(collateralValue);
-            console.log('check', liabilityValue.toString(), collateralValue.toString(), tokenBal.toString(), eulerAllowance.toString(), eTokenBalanceUnderlying.toString(), dTokenBalance.toString())
             userData = {
               ...userData,
               isEntered: true,
@@ -163,7 +162,6 @@ export const getMarketsData = async (account, chainId) => {
               totalCollatral: collateralValue.toString(),
               totalLiability: liabilityValue.toString(),
             };
-            console.log({ userData })
           }
         }
         totalSupply = totalSupply.plus(eachMarket.totalValueLockedUSD);

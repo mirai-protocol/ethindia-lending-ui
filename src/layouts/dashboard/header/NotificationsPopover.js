@@ -11,7 +11,7 @@ import {
   Box,
   List,
   Badge,
-  Button,
+  // Button,
   Avatar,
   Tooltip,
   Divider,
@@ -23,8 +23,6 @@ import {
   ListItemAvatar,
   ListItemButton,
 } from '@mui/material';
-// utils
-import { fToNow } from '../../../utils/formatTime';
 // components
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
@@ -114,7 +112,7 @@ function NotificationsPopover({ markets, updateNotification }) {
     <>
       <IconButton color={open ? 'primary' : 'default'} onClick={handleOpen} sx={{ width: 40, height: 40 }}>
         <Badge badgeContent={totalUnRead} color="error">
-          <Iconify icon="eva:bell-fill" />
+          <Iconify icon="eva:bell-fill" sx={{ color: '#4caf50'}}/>
         </Badge>
       </IconButton>
 
@@ -181,11 +179,11 @@ function NotificationsPopover({ markets, updateNotification }) {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Box sx={{ p: 1 }}>
+        {/* <Box sx={{ p: 1 }}>
           <Button fullWidth disableRipple>
             View All
           </Button>
-        </Box>
+        </Box> */}
       </Popover>
     </>
   );
@@ -237,6 +235,7 @@ function NotificationItem({ notification, updateNotification }) {
       <ListItemText
         primary={title}
         secondary={
+          notification.createdAt &&
           <Typography
             variant="caption"
             sx={{
@@ -247,7 +246,8 @@ function NotificationItem({ notification, updateNotification }) {
             }}
           >
             <Iconify icon="eva:clock-outline" sx={{ mr: 0.5, width: 16, height: 16 }} />
-            {fToNow(notification.createdAt)}
+            {/* {fToNow(notification.createdAt)} */}
+            {new Date(notification.createdAt).toLocaleDateString()}
           </Typography>
         }
       />
