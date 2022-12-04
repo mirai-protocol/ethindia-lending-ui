@@ -263,7 +263,7 @@ function Row(props) {
     const query = {
       eulerContract: eularTestnetConfig.euler,
       account,
-      markets: [inputToken.id],
+      markets: [],
     };
     const marketsUserData = await getMaticReadOnlyEulerInstance().contracts.eulerGeneralView.doQuery(query);
     if (chainId !== 80001) {
@@ -289,9 +289,8 @@ function Row(props) {
       let eulerAllowance = new BigNumber('0');
       let eTokenBalanceUnderlying = new BigNumber('0');
       let dTokenBalance = new BigNumber('0');
-      marketsUserData.markets.forEach(async (market) => {
+      await Promise.all(marketsUserData.markets.map(async (market) => {
         if (market[0] === isEntered) {
-          const mappedMarkert = mappedUserData.markets.find((mappedmarket) => mappedmarket[0] === market[0]);
           const mappedData = await getUserstats(market);
           liabilityValue = liabilityValue.plus(mappedData.liabilityValue);
           collateralValue = collateralValue.plus(mappedData.collateralValue);
@@ -299,15 +298,18 @@ function Row(props) {
           eulerAllowance = eulerAllowance.plus(mappedData.eulerAllowance);
           eTokenBalanceUnderlying = eTokenBalanceUnderlying.plus(mappedData.eTokenBalanceUnderlying);
           dTokenBalance = dTokenBalance.plus(mappedData.dTokenBalance);
-          if (mappedMarkert) {
-            const mappedmarketData = await getUserstats(mappedMarkert);
-            liabilityValue = liabilityValue.plus(mappedmarketData.liabilityValue);
-            collateralValue = collateralValue.plus(mappedmarketData.collateralValue);
-            eTokenBalanceUnderlying = eTokenBalanceUnderlying.plus(mappedmarketData.eTokenBalanceUnderlying);
-            dTokenBalance = dTokenBalance.plus(mappedmarketData.dTokenBalance);
+          if (mappedUserData) {
+            const mappedMarkert = mappedUserData.markets.find((mappedmarket) => mappedmarket[0] === market[0]);
+            if (mappedMarkert) {
+              const mappedmarketData = await getUserstats(mappedMarkert);
+              liabilityValue = liabilityValue.plus(mappedmarketData.liabilityValue);
+              collateralValue = collateralValue.plus(mappedmarketData.collateralValue);
+              eTokenBalanceUnderlying = eTokenBalanceUnderlying.plus(mappedmarketData.eTokenBalanceUnderlying);
+              dTokenBalance = dTokenBalance.plus(mappedmarketData.dTokenBalance);
+            }
           }
         }
-      });
+      }));
       if (chainId === 5) {
         const tokenAddress = nonMaticTokenAddressMapping[inputToken.symbol.toLowerCase()][chainId];
         if (tokenAddress) {
@@ -463,7 +465,6 @@ function Row(props) {
       setIsEntered(userData.isEntered);
     }
   }, [userData]);
-
   return (
     <>
       <TableRow hover key={id} tabIndex={-1} role="checkbox">

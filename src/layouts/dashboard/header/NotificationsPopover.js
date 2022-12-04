@@ -214,7 +214,7 @@ function NotificationItem({ notification, updateNotification }) {
           isUnRead: false,
         })
       }
-    }, 2000);
+    }, 10000);
     return () => clearTimeout(timerId);
   }, [])
   
