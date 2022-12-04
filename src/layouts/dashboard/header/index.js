@@ -189,10 +189,10 @@ function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNot
                 addNewNotification({
                   ...feedItem.payload.data,
                   description: feedItem.payload.notification.body,
-                  title: feedItem.payload.data.msub,
+                  title: feedItem.payload.data.asub,
                   isUnRead: true,
                   type: 'order_placed',
-                  createdAt: new Date(Math.floor(parseFloat(feedItem.payload.data.epoch))),
+                  createdAt: new Date(Math.floor(parseFloat(feedItem.payload.data.epoch)*1000)),
                   id: faker.datatype.uuid(),
                 })
               }

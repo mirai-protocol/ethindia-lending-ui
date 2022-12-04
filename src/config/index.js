@@ -182,14 +182,14 @@ export const nonMaticTokenAddressMapping = {
 export const addressesChainMappings = {
   eToken: {
     80001: '0x28Abb9C008F83b3B29CcA7FF7859293978c847f4',
-    5: '0xa19a9a51f04763f7bb0ac376346dcaae182b13de',
+    5: '0x17D0668dfAD8e419650D1F1B38E1f4B0C2cF6Fe4',
   },
   dToken: {
-    80001: '0x24f1665e4154524563586EbB7bA7A23E40ad68Bd',
-    5: '0x722ac7ebde367db0b182a7aaaeffb382a89c6b9b',
+    80001: '0x7D627B8a5dDf1e5e0b71f6786C470FCCdd6d16Ba',
+    5: '0x679b6868FE19AbE1510977d95C7c06ecE94baF7f',
   },
 };
 
-export const TARGET_ADDRESS = '0xD68C40a52Da7c090CdC5421216F372C2Da802231';
+export const TARGET_ADDRESS = '0x4836966fa10A5DD930c9a4BcA62873b25757619d';
 export const relayFee = 0;
 export const destinationDomain = 9991;
