@@ -4,6 +4,7 @@
 import { styled as muiStyled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import styled, { keyframes } from 'styled-components';
+import BigNumber from 'bignumber.js';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { faker } from '@faker-js/faker';
 import {
@@ -24,6 +25,7 @@ import NotificationsPopover from './NotificationsPopover';
 import NetworkToggle from './NetworkToggle';
 import crossChain from '../../../images/alert.gif';
 import { globalCreators } from '../../../state/markets/index';
+import { nonMaticTokenAddressMapping } from '../../../config';
 
 // ----------------------------------------------------------------------
 
@@ -127,6 +129,7 @@ function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNot
       setNotificationOn(() => true);
     }
   }, [account, chainId]);
+  const hasNumber= (myString)=> /\d/.test(myString)
   const getNotifications = useCallback(async () => {
     try {
       getAllNotificationsLoad()
@@ -137,9 +140,28 @@ function Header({ getAllNotificationsLoad, getAllNotificationsSuccess, getAllNot
       let filteredNotificaitons = notifications.filter(notification => notification.app === 'mirai-crosschain-notifications')
       filteredNotificaitons = filteredNotificaitons.map(notification => {
         if (notification.app === 'mirai-crosschain-notifications') {
+          const checkIfNumber = hasNumber(notification.notification.body)
+          let updatedDescription = notification.notification.body;
+          if (checkIfNumber) {
+            const num = notification.notification.body.replace(/\D/g, '');
+            let tokenDecimals = 18;
+            notification.notification.body.split(' ').map(text=>{
+              if (nonMaticTokenAddressMapping[text.toLowerCase()]) {
+                let tokenSymbol = text;
+                if (text[0] === 'e' || text[0] === 'd'){
+                  tokenSymbol = text.slice(1)
+                }
+                tokenDecimals = nonMaticTokenAddressMapping[tokenSymbol.toLowerCase()].decimals
+              }
+            })
+            if (num) {
+              const updatedNumber = new BigNumber(num).dividedBy(10 ** parseFloat(tokenDecimals)).toFixed(2).toString()
+              updatedDescription = notification.notification.body.replace(num, updatedNumber);
+            }
+          }
           const updatednotification = {
             ...notification,
-            description: notification.notification.body,
+            description: updatedDescription,
             isUnRead: false,
             type: 'order_placed',
             id: faker.datatype.uuid(),

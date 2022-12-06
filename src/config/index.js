@@ -160,22 +160,37 @@ export const nonMaticTokenAddressMapping = {
   usdc: {
     5: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
     80001: '0x2eddc4d432f0af7c05f9acf95ebe8b12bd9f83b6',
+    name: 'Tether Usd',
+    symbol: 'USDC',
+    decimals: '6'
   },
   weth: {
     5: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
     80001: '0x38f501a3447ad5c009bd94704eaae099300d8b46',
+    name: 'Wrapped ETH',
+    symbol: 'WETH',
+    decimals: '18'
   },
   dai: {
     5: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
     80001: '0xd1efafdfc8d0fb032d0c5f4f0c8c7d2ce5094d54',
+    name: 'DAI',
+    symbol: 'DAI',
+    decimals: '18'
   },
   bat: {
     5: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F', // dai address pasted
     80001: '0xd9b9f2c806ed85cf98560e4be61cf2d2fde58a8c',
+    name: 'Basic Attention Token',
+    symbol: 'BAT',
+    decimals: '18'
   },
   wmatic: {
     5: '0x07865c6E87B9F70255377e024ace6630C1Eaa37F',
     80001: '0x9c3c9283d3e44854697cd22d3faa240cfb032889',
+    name: 'Wrapped Matic',
+    symbol: 'WMATIC',
+    decimals: '18'
   },
 };
 
